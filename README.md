@@ -1,2 +1,6 @@
-# sisop2_dropbox
-Dropbox-like made using C/C++ with UNIX pthreads and sockets
+# Sistemas Operacionas II - Dropbox
+## Integrantes :
+- Mateus Nunes Campos 
+- Vinicius Fraga Coromberque
+- Leonardo Bilhalva
+- João Pilotti
