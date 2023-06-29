@@ -3,7 +3,6 @@
 
 #include <unistd.h>
 #include <iostream>
-#include "../../Common/header/Packet.hpp"
 
 class ClientHandler
 {
