@@ -31,44 +31,54 @@ bool Server::start()
     return true;
 }
 
-
-//Subrotina para lidar com conexão do cliente
+// Subrotina para lidar com conexão do cliente
 void *handleClient(void *arg)
 {
     ClientHandler *clientHandler = reinterpret_cast<ClientHandler *>(arg);
+    std::cout << "New connection received!";
 
-    clientHandler->handleClient();
-
+    while (true)
+    {
+        clientHandler->handleClient();
+        sleep(1);
+    }
+    
     close(clientHandler->getClientSocket());
+    std::cout << "Connection ended!";
 
     pthread_exit(nullptr);
 }
 
 void Server::run()
 {
-    // Aguarda por conexões do cliente
-    listen(serverSocket, 2);
 
-    sockaddr_in clientAddress;
-    socklen_t clientAddressLength = sizeof(clientAddress);
-    int clientSocket = accept(serverSocket, reinterpret_cast<sockaddr *>(&clientAddress), &clientAddressLength);
-    if (clientSocket == -1)
+    while (true)
     {
-        std::cerr << "Error accepting connection!" << std::endl;
-        close(serverSocket);
-        return;
+        // Aguarda por conexões do cliente
+        listen(serverSocket, CONNECTIONS_LIMIT);
+
+        sockaddr_in clientAddress;
+        socklen_t clientAddressLength = sizeof(clientAddress);
+        int clientSocket = accept(serverSocket, reinterpret_cast<sockaddr *>(&clientAddress), &clientAddressLength);
+        if (clientSocket == -1)
+        {
+            std::cerr << "Error accepting connection!"
+                      << " Code : " << clientSocket << std::endl;
+            close(serverSocket);
+            return;
+        }
+
+        ClientHandler *clientHandler = new ClientHandler(clientSocket);
+
+        // Se a conexão ocorreu com sucesso, spawna uma nova thread para o cliente
+        pthread_t clientThread;
+        if (pthread_create(&clientThread, nullptr, handleClient, reinterpret_cast<void *>(clientHandler)) != 0)
+        {
+            std::cerr << "Thread creation fail!" << std::endl;
+            delete clientHandler;
+            close(clientSocket);
+        }
+
+        pthread_detach(clientThread);
     }
-
-    ClientHandler *clientHandler = new ClientHandler(clientSocket);
-
-    // Se a conexão ocorreu com sucesso, spawna uma nova thread para o cliente
-    pthread_t clientThread;
-    if (pthread_create(&clientThread, nullptr, handleClient, reinterpret_cast<void *>(clientHandler)) != 0)
-    {
-        std::cerr << "Thread creation fail!" << std::endl;
-        delete clientHandler;
-        close(clientSocket);
-    }
-
-    pthread_detach(clientThread);
 }

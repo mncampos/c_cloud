@@ -7,7 +7,7 @@ ClientHandler::ClientHandler(int clientSocket)
 
 void ClientHandler::handleClient()
 {
-    std::cout << "Im handling the client " << this->clientSocket << std::endl;
+    std::cout << "Handling client number " << this->clientSocket << std::endl;
 }
 
 int ClientHandler::getClientSocket()

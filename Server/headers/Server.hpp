@@ -8,6 +8,7 @@
 #include "ClientHandler.hpp"
 
 const int PORT = 4000;
+const int CONNECTIONS_LIMIT = 3;
 
 class Server
 {
