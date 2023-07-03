@@ -14,11 +14,14 @@ int main(int argc, char *argv[])
     int port = std::stoi(argv[3]);
 
     Client client(username, serverIP, port);
-    client.serverConnect();
-    client.communicate();
+
+    if (client.socket.connectToServer())
+        std::cout << "Connected succesfully!" << std::endl;
+
+    sleep(30);
 
     // Fecha o socket
-    close(client.getClientSocket());
+    client.socket.close();
 
     return 0;
 }

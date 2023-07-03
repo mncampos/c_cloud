@@ -1,48 +1,19 @@
 #include "../headers/Server.hpp"
 
-Server::Server()
-{
-    this->serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-}
-
-bool Server::start()
-{
-    // Criação do Socket
-    if (serverSocket == -1)
-    {
-        std::cerr << "Error creating server socket!" << std::endl;
-        return false;
-    }
-
-    // Endereço do servidor
-    serverAddress.sin_family = AF_INET;
-    serverAddress.sin_port = htons(PORT);
-    serverAddress.sin_addr.s_addr = INADDR_ANY;
-
-    // Binda o socket ao endereço
-    if (bind(serverSocket, reinterpret_cast<sockaddr *>(&serverAddress), sizeof(serverAddress)) == -1)
-    {
-        std::cerr << "Error binding socket to the specified address!" << std::endl;
-        close(serverSocket);
-        return false;
-    }
-
-    std::cout << "Server successfully online. Listening for connections..." << std::endl;
-    return true;
-}
+Server::Server() : serverSocket(PORT) {}
 
 // Subrotina para lidar com conexão do cliente
 void *handleClient(void *arg)
 {
     ClientHandler *clientHandler = reinterpret_cast<ClientHandler *>(arg);
-    std::cout << "New connection received!";
+    std::cout << "New connection received!" << std::endl;
 
     while (true)
     {
         clientHandler->handleClient();
-        sleep(1);
+        sleep(5);
     }
-    
+
     close(clientHandler->getClientSocket());
     std::cout << "Connection ended!";
 
@@ -51,24 +22,19 @@ void *handleClient(void *arg)
 
 void Server::run()
 {
+    // Aguarda por conexões do cliente
+    if (!serverSocket.listen(CONNECTIONS_LIMIT))
+        std::cout << "Error listening to connections!" << std::endl;
+    else
+        std::cout << "Server online and listening for connections on port " << PORT << std::endl;
 
     while (true)
     {
-        // Aguarda por conexões do cliente
-        listen(serverSocket, CONNECTIONS_LIMIT);
+        // Aguarda por conexões (bloqueia até vir uma)
+        if (!serverSocket.accept())
+            std::cout << "Error accepting connections!" << std::endl;
 
-        sockaddr_in clientAddress;
-        socklen_t clientAddressLength = sizeof(clientAddress);
-        int clientSocket = accept(serverSocket, reinterpret_cast<sockaddr *>(&clientAddress), &clientAddressLength);
-        if (clientSocket == -1)
-        {
-            std::cerr << "Error accepting connection!"
-                      << " Code : " << clientSocket << std::endl;
-            close(serverSocket);
-            return;
-        }
-
-        ClientHandler *clientHandler = new ClientHandler(clientSocket);
+        ClientHandler *clientHandler = new ClientHandler(serverSocket.getClientSocketFd());
 
         // Se a conexão ocorreu com sucesso, spawna uma nova thread para o cliente
         pthread_t clientThread;
@@ -76,9 +42,10 @@ void Server::run()
         {
             std::cerr << "Thread creation fail!" << std::endl;
             delete clientHandler;
-            close(clientSocket);
+            close(serverSocket.getClientSocketFd());
         }
 
+        std::cout << "Created new thread [" << clientThread << "] for handling client number " << serverSocket.getClientSocketFd() << std::endl;
         pthread_detach(clientThread);
     }
 }

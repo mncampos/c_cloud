@@ -13,22 +13,16 @@
 #include <filesystem>
 #include <vector>
 #include <iterator>
+#include "./ClientSocket.hpp"
 
 class Client
 {
 public:
     Client(const std::string &username, const std::string &serverIP, int port);
-    void communicate();
-    bool serverConnect();
-    int getClientSocket();
-    bool getConnectionStatus();
+    ClientSocket socket;
 
 private:
     std::string username;
-    std::string serverIP;
-    int port;
-    int clientSocket;
-    bool connected;
 };
 
 #endif
