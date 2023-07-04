@@ -4,18 +4,26 @@
 #include <unistd.h>
 #include "./ServerSocket.hpp"
 #include <iostream>
+#include <sys/stat.h>
+
 
 class ClientHandler
 {
 public:
+
+    ServerSocket* serverSocket;
+
     ClientHandler(int clientSocket, ServerSocket* serverSocket);
     void handleClient();
     int getClientSocket();
     void setClientUsername(std::string username);
     std::string getClientUsername();
+    
+    
+    void getSyncDir();
 
 
-    ServerSocket* serverSocket;
+
 
 
 

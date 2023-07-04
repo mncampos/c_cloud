@@ -11,6 +11,7 @@ void *handleClient(void *arg)
     Packet receivedPacket = clientHandler->serverSocket->receiveData();
     std::cout << "[+] User " << receivedPacket.payload.get() << " connected!" << std::endl;
     clientHandler->setClientUsername(receivedPacket.payload.get());
+    clientHandler->getSyncDir();
     
     while (true)
     {
