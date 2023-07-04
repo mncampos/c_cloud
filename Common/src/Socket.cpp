@@ -13,18 +13,6 @@ bool Socket::create()
     return socketFd != -1;
 }
 
-bool Socket::send(const Packet &pkt)
-{
-    ssize_t bytesSent = ::send(socketFd, &pkt, sizeof(pkt), 0);
-    return bytesSent == sizeof(pkt);
-}
-
-bool Socket::receive(Packet &pkt)
-{
-    ssize_t bytesRead = ::recv(socketFd, &pkt, sizeof(pkt), 0);
-    return bytesRead == sizeof(pkt);
-}
-
 bool Socket::close()
 {
     if (socketFd != -1)

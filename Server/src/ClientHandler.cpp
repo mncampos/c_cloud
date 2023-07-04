@@ -1,8 +1,9 @@
 #include "../headers/ClientHandler.hpp"
 
-ClientHandler::ClientHandler(int clientSocket)
+ClientHandler::ClientHandler(int clientSocket, ServerSocket* serverSocket)
 {
     this->clientSocket = clientSocket;
+    this->serverSocket = serverSocket;
 }
 
 void ClientHandler::handleClient()
@@ -13,4 +14,14 @@ void ClientHandler::handleClient()
 int ClientHandler::getClientSocket()
 {
     return this->clientSocket;
+}
+
+void ClientHandler::setClientUsername(std::string username)
+{
+    this->clientUsername = username;
+}
+
+std::string ClientHandler::getClientUsername()
+{
+    return this->clientUsername;
 }

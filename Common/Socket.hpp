@@ -13,8 +13,6 @@ public:
     Socket();
     virtual ~Socket();
     bool create();
-    bool send(const Packet &pkt);
-    bool receive(Packet &pkt);
     bool close();
     int getSocketFd();
 

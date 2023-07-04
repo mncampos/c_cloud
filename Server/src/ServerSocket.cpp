@@ -2,10 +2,14 @@
 
 ServerSocket::ServerSocket(int port) : port(port)
 {
-    if (!create())
-        std::cout << "Error creating server socket!" << std::endl;
-    if (!bind())
-        std::cout << "Error binding server socket!" << std::endl;
+    if (!create()){
+        std::cout << "[-] Error creating server socket!" << std::endl;
+        exit(-1);
+    }
+    if (!bind()){
+        std::cout << "[-] Error binding server socket!" << std::endl;
+        exit(-1);
+    }
 }
 
 bool ServerSocket::bind()
@@ -39,4 +43,22 @@ bool ServerSocket::accept()
 int ServerSocket::getClientSocketFd()
 {
     return this->clientSocketFd;
+}
+
+Packet ServerSocket::receiveData()
+{
+    std::vector<uint8_t> dataBuffer(MAX_PAYLOAD);
+    ssize_t bytesRead = recv(clientSocketFd, dataBuffer.data(), dataBuffer.size(), 0);
+    if (bytesRead == -1) {
+        std::cerr << "[-] Failed to receive data" << std::endl;
+        return {};
+    }
+    std::vector<uint8_t> receivedData(dataBuffer.begin(), dataBuffer.begin() + bytesRead);
+    Packet receivedPacket = Packet::deserialize(receivedData);
+
+    if(bytesRead < receivedPacket.length){
+        std::cerr << "[-] Received incomplete packet!" << std::endl;
+    }
+
+    return receivedPacket;
 }

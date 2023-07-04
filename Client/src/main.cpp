@@ -15,8 +15,18 @@ int main(int argc, char *argv[])
 
     Client client(username, serverIP, port);
 
-    if (client.socket.connectToServer())
-        std::cout << "Connected succesfully!" << std::endl;
+    if (!client.socket.connectToServer())
+        std::cout << "Error connecting to server!" << std::endl;
+    else
+        std::cout << "Connected to server succesfully!" << std::endl;
+
+    // Send user info to server
+    if (!client.socket.sendUsername(username))
+    {
+        std::cerr << "Error sending user info!" << std::endl;
+        ::close(client.socket.getSocketFd());
+        exit(1);
+    }
 
     sleep(30);
 

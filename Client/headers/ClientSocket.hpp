@@ -9,6 +9,7 @@ public:
     ClientSocket(const std::string &serverAddress, int port);
     bool connectToServer();
     int getPort();
+    bool sendUsername(std::string username);
     std::string getAddress();
 
 private:

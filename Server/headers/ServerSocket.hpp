@@ -9,6 +9,7 @@ class ServerSocket : public Socket {
     bool bind();
     bool listen(int backlog = 5);
     bool accept();
+    Packet receiveData();
     int getClientSocketFd();
 
 

@@ -35,3 +35,13 @@ std::string ClientSocket::getAddress()
 {
     return this->address;
 }
+
+bool ClientSocket::sendUsername(std::string username)
+{
+    Packet usernamePkt = Packet(USERNAME_PKT, 1, 1, username.length() + 1, username.c_str());
+    std::vector<uint8_t> serializedPacket = usernamePkt.serialize();
+
+    return ::send(socketFd, serializedPacket.data(), serializedPacket.size(), 0) > 0;
+
+
+}
