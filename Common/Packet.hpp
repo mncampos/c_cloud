@@ -14,7 +14,8 @@ enum PacketType
     USERNAME_PKT = 1, // Packet that sends a username
     FILE_PKT,         // Sends a file
     COMMAND_PKT,      // Sends a command
-    NOTIFY_PT,        // Sends a notification, usually if the user disconnected
+    NOTIFY_PKT,        // Sends a notification, usually if the user disconnected
+    FAILURE,          // Packet failed
 };
 
 class Packet
@@ -28,6 +29,7 @@ public:
 
     Packet(uint16_t type, uint16_t seqn, uint32_t total_size, uint16_t length, const char *payload);
     Packet();
+    Packet(uint16_t type);
     std::vector<uint8_t> serialize(); // Serialize the packet into network data format
 
     static Packet deserialize(const std::vector<uint8_t> &serializedPacket)

@@ -10,6 +10,7 @@ public:
     bool connectToServer();
     int getPort();
     bool sendUsername(std::string username);
+    bool sendCommand(std::string command);
     std::string getAddress();
 
 private:

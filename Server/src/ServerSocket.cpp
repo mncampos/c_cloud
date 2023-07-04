@@ -51,13 +51,19 @@ Packet ServerSocket::receiveData()
     ssize_t bytesRead = recv(clientSocketFd, dataBuffer.data(), dataBuffer.size(), 0);
     if (bytesRead == -1) {
         std::cerr << "[-] Failed to receive data" << std::endl;
-        return {};
+        return Packet(FAILURE);
+    }
+    if (bytesRead == 0) {
+        std::cerr << "[-] Connection closed" << std::endl;
+        ::close(clientSocketFd);
+        return Packet(FAILURE);
     }
     std::vector<uint8_t> receivedData(dataBuffer.begin(), dataBuffer.begin() + bytesRead);
     Packet receivedPacket = Packet::deserialize(receivedData);
 
     if(bytesRead < receivedPacket.length){
         std::cerr << "[-] Received incomplete packet!" << std::endl;
+        return Packet(FAILURE);
     }
 
     return receivedPacket;

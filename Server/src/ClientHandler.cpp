@@ -6,9 +6,23 @@ ClientHandler::ClientHandler(int clientSocket, ServerSocket *serverSocket)
     this->serverSocket = serverSocket;
 }
 
-void ClientHandler::handleClient()
+int ClientHandler::handleClient()
 {
-    std::cout << "Handling client number " << this->clientSocket << std::endl;
+    Packet pkt = this->serverSocket->receiveData();
+    if (pkt.type == COMMAND_PKT)
+    {
+        std::cout << "Received command " << pkt.payload.get() << " from user: " << this->clientUsername << std::endl;
+
+        if (strcmp(pkt.payload.get(), "exit") == 0)
+        {
+            std::cout << "Disconnecting " << this->clientUsername << std::endl;
+            return -1;
+        }
+
+        return -1;
+    }
+
+    return -1;
 }
 
 int ClientHandler::getClientSocket()

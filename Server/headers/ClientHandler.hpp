@@ -6,26 +6,18 @@
 #include <iostream>
 #include <sys/stat.h>
 
-
 class ClientHandler
 {
 public:
+    ServerSocket *serverSocket;
 
-    ServerSocket* serverSocket;
-
-    ClientHandler(int clientSocket, ServerSocket* serverSocket);
-    void handleClient();
+    ClientHandler(int clientSocket, ServerSocket *serverSocket);
+    int handleClient();
     int getClientSocket();
     void setClientUsername(std::string username);
     std::string getClientUsername();
-    
-    
+
     void getSyncDir();
-
-
-
-
-
 
 private:
     int clientSocket;

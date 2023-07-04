@@ -2,6 +2,7 @@
 #define SERVERSOCKET_HPP
 
 #include "../../Common/Socket.hpp"
+#include <optional>
 
 class ServerSocket : public Socket {
     public:

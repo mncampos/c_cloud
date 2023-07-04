@@ -4,8 +4,8 @@ int main(int argc, char *argv[])
 {
     if (argc < 4)
     {
-        std::cerr << "Invalid number of parameters." << std::endl
-                  << "Usage: ./myClient <username> <server_ip_address> <port>" << std::endl;
+        std::cerr << "[-] Invalid number of parameters." << std::endl
+                  << "[#] Usage: ./myClient <username> <server_ip_address> <port>" << std::endl;
         return -1;
     }
 
@@ -16,19 +16,26 @@ int main(int argc, char *argv[])
     Client client(username, serverIP, port);
 
     if (!client.socket.connectToServer())
-        std::cout << "Error connecting to server!" << std::endl;
+        std::cout << "[-] Error connecting to server!" << std::endl;
     else
-        std::cout << "Connected to server succesfully!" << std::endl;
+        std::cout << "[+] Connected to server succesfully!" << std::endl;
 
     // Send user info to server
     if (!client.socket.sendUsername(username))
     {
-        std::cerr << "Error sending user info!" << std::endl;
+        std::cerr << "[-] Error sending user info!" << std::endl;
         ::close(client.socket.getSocketFd());
         exit(1);
     }
 
-    sleep(30);
+    std::string command;
+
+    while(true)
+    {
+        std::cout << "Enter a command... \n > ";
+        std::cin >> command;
+        client.socket.sendCommand(command);
+    }
 
     // Fecha o socket
     client.socket.close();

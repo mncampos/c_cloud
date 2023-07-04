@@ -5,7 +5,7 @@ ClientSocket::ClientSocket(const std::string &serverAddress, int port)
 {
     if (!create())
     {
-        std::cerr << "Error opening socket!" << std::endl;
+        std::cerr << "[-] Error opening socket!" << std::endl;
     }
 }
 
@@ -17,11 +17,11 @@ bool ClientSocket::connectToServer()
 
     if (inet_pton(AF_INET, address.c_str(), &(serverAddress.sin_addr)) <= 0)
     {
-        std::cerr << "Failed to set server address!" << std::endl;
+        std::cerr << "[-] Failed to set server address!" << std::endl;
         return false;
     }
 
-    std::cout << "Attempting to connect to server " << address << ":" << port <<  "..." << std::endl;
+    std::cout << "[#] Attempting to connect to server " << address << ":" << port <<  "..." << std::endl;
 
     return ::connect(socketFd, reinterpret_cast<sockaddr *>(&serverAddress), sizeof(serverAddress)) != -1;
 }
@@ -42,6 +42,13 @@ bool ClientSocket::sendUsername(std::string username)
     std::vector<uint8_t> serializedPacket = usernamePkt.serialize();
 
     return ::send(socketFd, serializedPacket.data(), serializedPacket.size(), 0) > 0;
-
-
 }
+
+bool ClientSocket::sendCommand(std::string command)
+{
+    Packet commandPkt = Packet(COMMAND_PKT, 1, 1, command.length() + 1, command.c_str());
+    std::vector<uint8_t> serializedPacket = commandPkt.serialize();
+
+    return ::send(socketFd, serializedPacket.data(), serializedPacket.size(), 0) > 0;
+}
+
