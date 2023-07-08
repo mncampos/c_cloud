@@ -14,12 +14,20 @@
 #include <vector>
 #include <iterator>
 #include "./ClientSocket.hpp"
+#include <algorithm>
 
 class Client
 {
 public:
     Client(const std::string &username, const std::string &serverIP, int port);
     ClientSocket socket;
+    void uploadFile(std::string fileName);
+    void downloadFile(std::string fileName);
+    void deleteFile(std::string fileName);
+    void listServerFiles();
+    void listClientFiles();
+    void getSyncDir();
+
 
 private:
     std::string username;

@@ -21,7 +21,7 @@ bool ClientSocket::connectToServer()
         return false;
     }
 
-    std::cout << "[#] Attempting to connect to server " << address << ":" << port <<  "..." << std::endl;
+    std::cout << "[#] Attempting to connect to server " << address << ":" << port << "..." << std::endl;
 
     return ::connect(socketFd, reinterpret_cast<sockaddr *>(&serverAddress), sizeof(serverAddress)) != -1;
 }
@@ -39,16 +39,5 @@ std::string ClientSocket::getAddress()
 bool ClientSocket::sendUsername(std::string username)
 {
     Packet usernamePkt = Packet(USERNAME_PKT, 1, 1, username.length() + 1, username.c_str());
-    std::vector<uint8_t> serializedPacket = usernamePkt.serialize();
-
-    return ::send(socketFd, serializedPacket.data(), serializedPacket.size(), 0) > 0;
+    return sendMessage(this->socketFd, std::move(usernamePkt));
 }
-
-bool ClientSocket::sendCommand(std::string command)
-{
-    Packet commandPkt = Packet(COMMAND_PKT, 1, 1, command.length() + 1, command.c_str());
-    std::vector<uint8_t> serializedPacket = commandPkt.serialize();
-
-    return ::send(socketFd, serializedPacket.data(), serializedPacket.size(), 0) > 0;
-}
-

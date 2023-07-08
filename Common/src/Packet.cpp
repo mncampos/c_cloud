@@ -25,7 +25,7 @@ std::vector<uint8_t> Packet::serialize()
 
     uint16_t s_type = htons(type);
     uint16_t s_seqn = htons(seqn);
-    uint32_t s_totalSize = htons(totalSize);
+    uint32_t s_totalSize = htonl(totalSize);
     uint16_t s_length = htons(length);
 
     serializedPacket.insert(serializedPacket.end(), reinterpret_cast<const uint8_t *>(&s_type), reinterpret_cast<const uint8_t *>(&s_type) + sizeof(s_type));

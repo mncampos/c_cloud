@@ -2,6 +2,8 @@
 #define CLIENTSOCKET_HPP
 
 #include "../../Common/Socket.hpp"
+#include <fstream>
+#include <cmath>
 
 class ClientSocket : public Socket
 {
@@ -10,7 +12,6 @@ public:
     bool connectToServer();
     int getPort();
     bool sendUsername(std::string username);
-    bool sendCommand(std::string command);
     std::string getAddress();
 
 private:

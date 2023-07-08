@@ -8,20 +8,13 @@ void *handleClient(void *arg)
     ClientHandler *clientHandler = reinterpret_cast<ClientHandler *>(arg);
     std::cout << "[+] New connection received!" << std::endl;
 
-    Packet receivedPacket = clientHandler->serverSocket->receiveData();
+    Packet receivedPacket = clientHandler->serverSocket->receiveMessage(clientHandler->getClientSocket());
     std::cout << "[+] User " << receivedPacket.payload.get() << " connected!" << std::endl;
     clientHandler->setClientUsername(receivedPacket.payload.get());
     clientHandler->getSyncDir();
+    
+    clientHandler->handleClient();
 
-    while (true)
-    {
-        int command = clientHandler->handleClient();
-
-        if (command == -1)
-            break;
-
-        sleep(5);
-    }
 
     close(clientHandler->getClientSocket());
     std::cout << "[+] Connection ended!";
@@ -31,19 +24,22 @@ void *handleClient(void *arg)
 
 void Server::run()
 {
-    // Aguarda por conexões do cliente
+    // Wait for client connections
     if (!serverSocket.listen(CONNECTIONS_LIMIT))
         std::cout << "[-] Error listening to connections!" << std::endl;
     else
         std::cout << "[+] Server online and listening for connections on port " << PORT << std::endl;
 
+    int clientSocketFd = 0; // Probably should be protected with a mutex or something
+
     while (true)
     {
-        // Aguarda por conexões (bloqueia até vir uma)
-        if (!serverSocket.accept())
+        // Blocked until a new connection is made
+        clientSocketFd = serverSocket.accept();
+        if (clientSocketFd == -1)
             std::cout << "[+] Error accepting connections!" << std::endl;
 
-        ClientHandler *clientHandler = new ClientHandler(serverSocket.getClientSocketFd(), &this->serverSocket);
+        ClientHandler *clientHandler = new ClientHandler(clientSocketFd, &this->serverSocket);
 
         // Se a conexão ocorreu com sucesso, spawna uma nova thread para o cliente
         pthread_t clientThread;
@@ -51,10 +47,10 @@ void Server::run()
         {
             std::cerr << "[-] Thread creation fail!" << std::endl;
             delete clientHandler;
-            close(serverSocket.getClientSocketFd());
+            close(clientSocketFd);
         }
 
-        std::cout << "[+] Created new thread [" << clientThread << "] for handling client number " << serverSocket.getClientSocketFd() << std::endl;
+        std::cout << "[+] Created new thread [" << clientThread << "] for handling client number " << clientSocketFd << std::endl;
         pthread_detach(clientThread);
     }
 }

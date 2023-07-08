@@ -6,23 +6,40 @@ ClientHandler::ClientHandler(int clientSocket, ServerSocket *serverSocket)
     this->serverSocket = serverSocket;
 }
 
-int ClientHandler::handleClient()
+void ClientHandler::handleClient()
 {
-    Packet pkt = this->serverSocket->receiveData();
-    if (pkt.type == COMMAND_PKT)
-    {
-        std::cout << "Received command " << pkt.payload.get() << " from user: " << this->clientUsername << std::endl;
 
-        if (strcmp(pkt.payload.get(), "exit") == 0)
+    while (true)
+    {
+        Packet pkt = serverSocket->receiveMessage(clientSocket);
+
+        if (pkt.type == FAILURE)
+            break;
+
+        if (pkt.type == COMMAND_PKT)
         {
-            std::cout << "Disconnecting " << this->clientUsername << std::endl;
-            return -1;
+            std::string payload(pkt.payload.get());
+
+            std::cout << "[" << clientUsername << "] requested " << payload << "." << std::endl;
+
+            if (payload == "upload")
+            {
+                Packet fileNamePkt = serverSocket->receiveMessage(clientSocket);
+                serverSocket->receiveFile(fileNamePkt.payload.get(), clientSocket);
+                continue;
+            }
+            else if (payload == "exit")
+            {
+                std::cout << "Disconnecting " << clientUsername << std::endl;
+                return;
+            }
         }
 
-        return -1;
+        else
+            continue;
     }
 
-    return -1;
+    return;
 }
 
 int ClientHandler::getClientSocket()

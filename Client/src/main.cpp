@@ -28,16 +28,41 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    std::string command;
+    
 
-    while(true)
+    while (true)
     {
-        std::cout << "Enter a command... \n > ";
-        std::cin >> command;
-        client.socket.sendCommand(command);
+        std::string command;
+        std::cout << "[+] Enter a command: \n > ";
+        std::getline(std::cin, command);
+
+        std::istringstream iss(command);
+        std::string cmdName, fileName;
+
+        iss >> cmdName >> fileName;
+
+        std::transform(cmdName.begin(), cmdName.end(), cmdName.begin(), ::tolower);
+
+        if (cmdName == "upload")
+            client.uploadFile(fileName);
+        else if (cmdName == "download")
+            client.downloadFile(fileName);
+        else if (cmdName == "delete")
+            client.deleteFile(fileName);
+        else if (cmdName == "list_sever" || cmdName == "listServer")
+            client.listServerFiles();
+        else if (cmdName == "list_client" || cmdName == "listClient")
+            client.listClientFiles();
+        else if (cmdName == "getSyncDir" || cmdName == "get_sync_dir")
+            client.getSyncDir();
+        else if (cmdName == "exit")
+            break;
+        else
+            std::cout << "[-] Invalid command. Try again." << std::endl;
     }
 
     // Fecha o socket
+    std::cout << "[+] Exiting program, goodbye!" << std::endl;
     client.socket.close();
 
     return 0;

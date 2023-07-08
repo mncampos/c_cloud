@@ -12,7 +12,7 @@ public:
     ServerSocket *serverSocket;
 
     ClientHandler(int clientSocket, ServerSocket *serverSocket);
-    int handleClient();
+    void handleClient();
     int getClientSocket();
     void setClientUsername(std::string username);
     std::string getClientUsername();

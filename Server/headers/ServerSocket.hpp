@@ -2,20 +2,19 @@
 #define SERVERSOCKET_HPP
 
 #include "../../Common/Socket.hpp"
-#include <optional>
+#include <fstream>
+#include <algorithm>
 
 class ServerSocket : public Socket {
     public:
     ServerSocket(int port);
     bool bind();
     bool listen(int backlog = 5);
-    bool accept();
-    Packet receiveData();
-    int getClientSocketFd();
+    int accept();
+
 
 
     private:
-    int clientSocketFd;
     int port;
 
 };

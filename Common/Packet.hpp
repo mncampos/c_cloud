@@ -14,8 +14,9 @@ enum PacketType
     USERNAME_PKT = 1, // Packet that sends a username
     FILE_PKT,         // Sends a file
     COMMAND_PKT,      // Sends a command
-    NOTIFY_PKT,        // Sends a notification, usually if the user disconnected
+    NOTIFY_PKT,       // Sends a notification, usually if the user disconnected
     FAILURE,          // Packet failed
+    FILENAME_PKT,     // A Packet that contains a filename, usually sent before a file
 };
 
 class Packet
@@ -41,9 +42,8 @@ public:
         packet.totalSize = ntohl(*reinterpret_cast<const uint32_t *>(serializedPacket.data() + sizeof(packet.type) + sizeof(packet.seqn)));
         packet.length = ntohs(*reinterpret_cast<const uint16_t *>(serializedPacket.data() + sizeof(packet.type) + sizeof(packet.seqn) + sizeof(packet.totalSize)));
 
-        packet.payload = std::make_unique<char[]>(packet.length + 1); // +1 for null terminator
+        packet.payload = std::make_unique<char[]>(packet.length);
         std::memcpy(packet.payload.get(), serializedPacket.data() + sizeof(packet.type) + sizeof(packet.seqn) + sizeof(packet.totalSize) + sizeof(packet.length), packet.length);
-        packet.payload[packet.length] = '\0'; // Null-terminate the payload
 
         return packet;
     }
