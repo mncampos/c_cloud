@@ -17,7 +17,7 @@ void *handleClient(void *arg)
 
 
     close(clientHandler->getClientSocket());
-    std::cout << "[+] Connection ended!";
+    std::cout << "[+] User " << clientHandler->getClientUsername() << " successfully disconnected." << std::endl;
 
     pthread_exit(nullptr);
 }

@@ -17,6 +17,7 @@ enum PacketType
     NOTIFY_PKT,       // Sends a notification, usually if the user disconnected
     FAILURE,          // Packet failed
     FILENAME_PKT,     // A Packet that contains a filename, usually sent before a file
+    DISCONNECTED,     // A Packet that nofities about the client DC
 };
 
 class Packet

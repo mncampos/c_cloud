@@ -15,6 +15,8 @@ void ClientHandler::handleClient()
 
         if (pkt.type == FAILURE)
             break;
+        if (pkt.type == DISCONNECTED)
+            break;
 
         if (pkt.type == COMMAND_PKT)
         {
@@ -25,7 +27,7 @@ void ClientHandler::handleClient()
             if (payload == "upload")
             {
                 Packet fileNamePkt = serverSocket->receiveMessage(clientSocket);
-                serverSocket->receiveFile(fileNamePkt.payload.get(), clientSocket);
+                serverSocket->receiveFile(fileNamePkt.payload.get(), clientSocket, this->clientUsername);
                 continue;
             }
             else if (payload == "exit")

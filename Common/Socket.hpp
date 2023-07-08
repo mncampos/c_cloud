@@ -23,7 +23,7 @@ public:
     bool sendFile(std::string filename, int clientSocketFd);
     Packet receiveMessage(int clientSocketFd);
     bool sendMessage(int socketFd, Packet messagePacket);
-    bool receiveFile(std::string filename, int clientSocketFd);
+    bool receiveFile(std::string filename, int clientSocketFd, std::string username);
 
 protected:
     int socketFd;

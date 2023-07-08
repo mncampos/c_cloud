@@ -77,7 +77,7 @@ bool Socket::sendFile(std::string filename, int clientSocketFd)
     return true;
 }
 
-bool Socket::receiveFile(std::string filename, int socketFd)
+bool Socket::receiveFile(std::string filename, int socketFd, std::string username)
 {
     std::vector<Packet> filePackets;
     std::cout << "Receiving file : " << filename << std::endl;
@@ -96,14 +96,15 @@ bool Socket::receiveFile(std::string filename, int socketFd)
         std::vector<uint8_t> byteStream(dataBuffer.begin(), dataBuffer.begin() + bytesRead);
         Packet assembledPacket = Packet::deserialize(byteStream);
 
-        //std::cout << "[+] Received packet " << assembledPacket.seqn << " / " << assembledPacket.totalSize << " of file " << filename << "." << std::endl;
+        // std::cout << "[+] Received packet " << assembledPacket.seqn << " / " << assembledPacket.totalSize << " of file " << filename << "." << std::endl;
         filePackets.push_back(std::move(assembledPacket));
 
         if (assembledPacket.seqn == assembledPacket.totalSize)
             break;
     }
 
-    std::ofstream newFile(filename, std::ios::binary);
+    std::string filePath = "sync_dir_" + username + "/" + filename;
+    std::ofstream newFile(filePath, std::ios::binary);
     if (!newFile)
     {
         std::cerr << "[-] Failed creating file" << std::endl;
@@ -128,16 +129,22 @@ Packet Socket::receiveMessage(int clientSocketFd)
 {
     std::vector<uint8_t> buf(MAX_PAYLOAD + 10);
     ssize_t bytesRead = recv(clientSocketFd, buf.data(), buf.size(), 0);
-    if (bytesRead == -1 || bytesRead == 0)
+    if (bytesRead == -1)
     {
         std::cerr << "[-] Failed to receive message!" << std::endl;
+        return Packet(FAILURE);
+    }
+
+    if (bytesRead == 0)
+    {
+        std::cerr << "[-] Client suddenly disconnected!" << std::endl;
         return Packet(FAILURE);
     }
 
     std::vector<uint8_t> receivedData(buf.begin(), buf.begin() + bytesRead);
     Packet receivedPkt = Packet::deserialize(receivedData);
 
-    if(receivedPkt.type == FILENAME_PKT)
+    if (receivedPkt.type == FILENAME_PKT)
         std::cout << receivedPkt.payload.get() << std::endl;
 
     return receivedPkt;
