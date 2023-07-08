@@ -29,6 +29,7 @@ public:
     void listServerFiles();
     void listClientFiles();
     void getSyncDir();
+    void requestSync();
 
 
 private:

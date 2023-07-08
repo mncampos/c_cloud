@@ -24,6 +24,8 @@ public:
     Packet receiveMessage(int clientSocketFd);
     bool sendMessage(int socketFd, Packet messagePacket);
     bool receiveFile(std::string filename, int clientSocketFd, std::string username);
+    bool downloadFile(std::string filename, int socketFd);
+    bool sendUserFile(std::string username, int socketFd, std::string filename);
 
 protected:
     int socketFd;

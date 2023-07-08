@@ -55,8 +55,10 @@ int main(int argc, char *argv[])
             client.listServerFiles();
         else if (cmdName == "list_client")
             client.listClientFiles();
-        else if (cmdName == "get_sync_dir")
+        else if (cmdName == "get_sync_dir"){
+            client.requestSync();
             client.getSyncDir();
+        }
         else if (cmdName == "exit")
             break;
         else

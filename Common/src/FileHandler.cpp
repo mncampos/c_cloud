@@ -118,3 +118,8 @@ std::string FileHandler::extractFilename(std::string filepath)
     }
     return filepath;
 }
+
+bool FileHandler::deleteFile(std::string filepath)
+{
+    return std::remove(filepath.c_str()) != 0;
+}

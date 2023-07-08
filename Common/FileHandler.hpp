@@ -20,6 +20,7 @@ class FileHandler{
     static std::vector<std::string> parseFileInfo(std::string fileInfo);
     static std::vector<std::string> getFileInfo(std::string filepath);
     static std::string extractFilename(std::string filepath);
+    static bool deleteFile(std::string filepath);
 };
 
 #endif

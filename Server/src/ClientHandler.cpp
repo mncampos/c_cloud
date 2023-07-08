@@ -27,7 +27,8 @@ void ClientHandler::handleClient()
             if (payload == "upload")
             {
                 Packet fileNamePkt = serverSocket->receiveMessage(clientSocket);
-                serverSocket->receiveFile(fileNamePkt.payload.get(), clientSocket, this->clientUsername);
+                std::string filename = FileHandler::extractFilename(fileNamePkt.payload.get());
+                serverSocket->receiveFile(filename, clientSocket, this->clientUsername);
                 continue;
             }
             else if (payload == "list_server")
@@ -42,9 +43,23 @@ void ClientHandler::handleClient()
             }
         }
 
+        if (pkt.type == SYNC_PKT)
+        {
+            this->getSyncDir();
+        }
+
+        if (pkt.type == DELETE)
+        {
+            std::cout << "[+] " << clientUsername << " requested to delete file " << pkt.payload.get() << std::endl;
+            if (FileHandler::deleteFile(pkt.payload.get()))
+                std::cerr << "[-] Failed to delete file." << std::endl;
+            else
+                std::cout << "[+] File deleted successfully." << std::endl;
+            continue;
+        }
         if (pkt.type == REQUEST_FILE)
         {
-            serverSocket->sendFile(pkt.payload.get(), clientSocket);
+            serverSocket->sendUserFile(this->clientUsername, clientSocket, pkt.payload.get());
             continue;
         }
 

@@ -16,7 +16,7 @@ void Client::uploadFile(std::string fileName)
 
     if (!this->socket.sendMessage(this->socket.getSocketFd(),
                                   Packet(FILENAME_PKT, 1, 1, fileName.length() + 1, fileName.c_str())))
-        std::cerr << "Error sending file name!" << std::endl;
+        std::cerr << "[-] Error sending file name!" << std::endl;
 
     sleep(1);
 
@@ -25,10 +25,26 @@ void Client::uploadFile(std::string fileName)
 
 void Client::downloadFile(std::string fileName)
 {
+    if (!this->socket.sendMessage(this->socket.getSocketFd(),
+                                  Packet(REQUEST_FILE, 1, 1, fileName.length() + 1, fileName.c_str())))
+        std::cerr << "[-] Error requesting file " << fileName << std::endl;
+
+    this->socket.downloadFile(fileName, this->socket.getSocketFd());
+    return;
 }
 
 void Client::deleteFile(std::string fileName)
 {
+    std::string filepath = "sync_dir_" + username + "/" + fileName;
+
+    if (!this->socket.sendMessage(this->socket.getSocketFd(),
+                                  Packet(DELETE, 1, 1, filepath.length() + 1, filepath.c_str())))
+        std::cerr << "[-] Error sending command!" << std::endl;
+
+    if (FileHandler::deleteFile(filepath))
+        std::cerr << "[-] Failed to delete file!" << std::endl;
+    else
+        std::cout << "[+] File deleted successfully." << std::endl;
 }
 void Client::listServerFiles()
 {
@@ -47,7 +63,7 @@ void Client::listClientFiles()
     std::string filepath = "sync_dir_" + username;
 
     std::vector<std::string> files = FileHandler::getDetailedFileList(filepath);
-    std::cout << "Local files:" << std::endl;
+    std::cout << "[#] Local files:" << std::endl;
     for (std::string str : files)
     {
         std::cout << str << std::endl;
@@ -91,7 +107,6 @@ void Client::getSyncDir()
             std::vector<std::string> localFile = FileHandler::getFileInfo(fileInfo[0]);
             if (fileInfo[1] == localFile[1])
             {
-                std::cout << fileInfo[0] << " is equal." << std::endl;
                 continue;
             }
         }
@@ -100,4 +115,9 @@ void Client::getSyncDir()
     }
 
     std::cout << "[+] Sync complete." << std::endl;
+}
+
+void Client::requestSync()
+{
+    this->socket.sendMessage(this->socket.getSocketFd(), Packet(SYNC_PKT));
 }
