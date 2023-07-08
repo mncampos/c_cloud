@@ -109,7 +109,7 @@ void ClientHandler::listServer(std::string username)
 {
     std::string filepath = "sync_dir_" + username;
 
-    std::vector<std::string> files = FileHandler::getFileList(filepath);
+    std::vector<std::string> files = FileHandler::getDetailedFileList(filepath);
     std::string newPayload = std::accumulate(files.begin(), files.end(), std::string(),
                                              [](const std::string &acc, const std::string &str)
                                              { return acc + str + "\n"; });

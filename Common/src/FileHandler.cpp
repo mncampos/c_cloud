@@ -19,6 +19,31 @@ std::vector<std::string> FileHandler::getFileList(std::string directory)
     return fileList;
 }
 
+std::vector<std::string> FileHandler::getDetailedFileList(std::string directory)
+{
+    std::vector<std::string> fileList;
+
+    for (const auto &entry : std::filesystem::directory_iterator(directory))
+    {
+        if (entry.is_regular_file())
+        {
+            std::string filePath = entry.path().string();
+            struct stat fileStats;
+            stat(filePath.c_str(), &fileStats);
+            std::string info = packDetailedInfo(filePath, fileStats.st_size, fileStats.st_mtime, fileStats.st_atime, fileStats.st_ctime);
+            fileList.push_back(info);
+        }
+    }
+
+    return fileList;
+}
+
+std::string FileHandler::packDetailedInfo(std::string fileName, uintmax_t fileSize, std::time_t modificationTime, std::time_t access_time, std::time_t creation_time)
+{
+    return "File: " + fileName + "\n" + "|" + "File size: " + formatSize(fileSize) + "\n" + "|" + "Last modified: " + formatTime(modificationTime) + "\n" + "|" + "Last accessed: " + formatTime(access_time) + "\n" + "|" + "Creation Time: " + formatTime(creation_time) + "\n";
+
+}
+
 std::string FileHandler::packInfo(std::string fileName, uintmax_t fileSize, std::time_t time)
 {
     std::string fileInfo = fileName + "|" + formatSize(fileSize) + "|" + formatTime(time);
@@ -91,5 +116,5 @@ std::string FileHandler::extractFilename(std::string filepath)
     {
         return filepath.substr(lastSlashIndex + 1);
     }
-    return filepath; 
+    return filepath;
 }

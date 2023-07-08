@@ -46,7 +46,7 @@ void Client::listClientFiles()
 {
     std::string filepath = "sync_dir_" + username;
 
-    std::vector<std::string> files = FileHandler::getFileList(filepath);
+    std::vector<std::string> files = FileHandler::getDetailedFileList(filepath);
     std::cout << "Local files:" << std::endl;
     for (std::string str : files)
     {
