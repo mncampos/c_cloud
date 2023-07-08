@@ -5,6 +5,8 @@
 #include "./ServerSocket.hpp"
 #include <iostream>
 #include <sys/stat.h>
+#include <filesystem>
+#include "../../Common/FileHandler.hpp"
 
 class ClientHandler
 {

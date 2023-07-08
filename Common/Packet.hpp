@@ -5,6 +5,7 @@
 #include <cstring>
 #include <vector>
 #include <arpa/inet.h>
+#include <iostream>
 #include <memory>
 
 const uint16_t MAX_PAYLOAD = 1024; // 1kb
@@ -18,6 +19,9 @@ enum PacketType
     FAILURE,          // Packet failed
     FILENAME_PKT,     // A Packet that contains a filename, usually sent before a file
     DISCONNECTED,     // A Packet that nofities about the client DC
+    FILE_INFO_PKT,    // A Packet that contains file information such as size and modified time
+    FINAL_PKT,        // Notifies that a certain transaction has finished
+    REQUEST_FILE,     // Requests a file from the user dir, contains the filename
 };
 
 class Packet
@@ -47,6 +51,20 @@ public:
         std::memcpy(packet.payload.get(), serializedPacket.data() + sizeof(packet.type) + sizeof(packet.seqn) + sizeof(packet.totalSize) + sizeof(packet.length), packet.length);
 
         return packet;
+    }
+
+    friend std::ostream &operator<<(std::ostream &os, const Packet &packet)
+    {
+        os << "Packet Info:" << std::endl;
+        os << "Type: " << packet.type << std::endl;
+        os << "Sequence Number: " << packet.seqn << std::endl;
+        os << "Total Size: " << packet.totalSize << std::endl;
+        os << "Payload Length: " << packet.length << std::endl;
+
+        std::string payloadStr(packet.payload.get(), packet.length);
+        os << "Payload: " << payloadStr << std::endl;
+
+        return os;
     }
 };
 

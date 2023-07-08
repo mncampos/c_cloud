@@ -41,3 +41,12 @@ bool ClientSocket::sendUsername(std::string username)
     Packet usernamePkt = Packet(USERNAME_PKT, 1, 1, username.length() + 1, username.c_str());
     return sendMessage(this->socketFd, std::move(usernamePkt));
 }
+
+bool ClientSocket::getSyncFile(std::string filename, std::string username)
+{
+    if(!sendMessage(this->socketFd, Packet(REQUEST_FILE, 1, 1, filename.length() + 1, filename.c_str()))) // Notifies the server that a file is needed
+        std::cerr << "[-] Failed to request file." << std::endl;
+    else std::cout << "[#] Requesting file : " << filename << std::endl;
+    
+    return receiveFile(FileHandler::extractFilename(filename), this->socketFd, username); 
+}

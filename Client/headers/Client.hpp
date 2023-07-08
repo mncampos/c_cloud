@@ -15,6 +15,7 @@
 #include <iterator>
 #include "./ClientSocket.hpp"
 #include <algorithm>
+#include "../../Common/FileHandler.hpp"
 
 class Client
 {

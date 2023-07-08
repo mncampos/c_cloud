@@ -49,8 +49,6 @@ void Server::run()
             delete clientHandler;
             close(clientSocketFd);
         }
-
-        std::cout << "[+] Created new thread [" << clientThread << "] for handling client number " << clientSocketFd << std::endl;
         pthread_detach(clientThread);
     }
 }

@@ -37,6 +37,13 @@ void ClientHandler::handleClient()
             }
         }
 
+        if (pkt.type == REQUEST_FILE)
+        {
+            std::cout << "Recebi viu " << pkt.payload.get() << std::endl;
+            serverSocket->sendFile(pkt.payload.get(), clientSocket);
+            continue;
+        }
+
         else
             continue;
     }
@@ -63,17 +70,33 @@ void ClientHandler::getSyncDir()
 {
     std::string syncDir = "sync_dir_" + clientUsername;
 
-    struct stat dir;
-
-    if (stat(syncDir.c_str(), &dir) == -1) // If the directory doesn't exists
+    if (!std::filesystem::exists(syncDir))
     {
-        if (mkdir(syncDir.c_str(), 0777) == 0)
+        if (std::filesystem::create_directory(syncDir))
         {
             std::cout << "[+] Sync dir created for " << clientUsername << " - " << syncDir << std::endl;
         }
         else
+        {
             std::cout << "[-] Failed to create sync dir!" << std::endl;
+            return;
+        }
     }
     else
+    {
         std::cout << "[#] " << syncDir << " found." << std::endl;
+    }
+
+    std::cout << "[#] Attempting to sync directories..." << std::endl;
+    std::vector<std::string> filesInSyncDir = FileHandler::getFileList(syncDir);
+
+    for (std::string str : filesInSyncDir)
+    {
+        this->serverSocket->sendMessage(this->clientSocket, Packet(FILE_INFO_PKT, 1, 1, str.length() + 1, str.c_str()));
+        sleep(1);
+    }
+
+    this->serverSocket->sendMessage(this->clientSocket, Packet(FINAL_PKT));
+    std::cout << "[+] Sync successful." << std::endl;
+    return;
 }

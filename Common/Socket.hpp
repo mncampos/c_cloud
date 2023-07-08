@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <cmath>
 #include "../Common/Packet.hpp"
-
+#include "./FileHandler.hpp"
 class Socket
 {
 public:

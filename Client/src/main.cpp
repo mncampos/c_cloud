@@ -15,8 +15,10 @@ int main(int argc, char *argv[])
 
     Client client(username, serverIP, port);
 
-    if (!client.socket.connectToServer())
+    if (!client.socket.connectToServer()){
         std::cout << "[-] Error connecting to server!" << std::endl;
+        exit(-1);
+    }
     else
         std::cout << "[+] Connected to server succesfully!" << std::endl;
 
@@ -28,7 +30,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    
+    client.getSyncDir();
 
     while (true)
     {

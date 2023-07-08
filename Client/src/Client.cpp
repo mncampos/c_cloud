@@ -38,4 +38,49 @@ void Client::listClientFiles()
 }
 void Client::getSyncDir()
 {
+    std::string syncDir = "sync_dir_" + username;
+
+    if (!std::filesystem::exists(syncDir))
+    {
+        if (!std::filesystem::create_directory(syncDir))
+        {
+            std::cerr << "[-] Failed to create sync_dir directory!" << std::endl;
+        }
+    }
+
+    std::string syncDirPath = std::filesystem::absolute(syncDir).string();
+
+    std::vector<Packet> serverFilesInfo;
+    std::cout << "[#] Syncing..." << std::endl;
+    while (true)
+    {
+
+        Packet receivedPacket = this->socket.receiveMessage(this->socket.getSocketFd());
+
+        if (receivedPacket.type == FILE_INFO_PKT)
+            serverFilesInfo.push_back(std::move(receivedPacket));
+
+        if (receivedPacket.type == FINAL_PKT)
+            break;
+    }
+
+    for (const Packet &pkt : serverFilesInfo)
+    {
+        // Index 0 = Filepath / Index 1 = File Size / Index 2 = File Modified Time
+        std::vector<std::string> fileInfo = FileHandler::parseFileInfo(pkt.payload.get());
+
+        if (std::filesystem::exists(fileInfo[0]))
+        {
+            std::vector<std::string> localFile = FileHandler::getFileInfo(fileInfo[0]);
+            if (fileInfo[1] == localFile[1])
+            {
+                std::cout << fileInfo[0] << " is equal." << std::endl;
+                continue;
+            }
+        }
+
+        this->socket.getSyncFile(fileInfo[0], this->username);
+    }
+
+    std::cout << "[+] Sync complete." << std::endl;
 }

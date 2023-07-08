@@ -35,7 +35,7 @@ bool Socket::sendFile(std::string filename, int clientSocketFd)
     std::ifstream file(filename, std::ios::binary | std::ios::ate);
     if (!file)
     {
-        std::cout << "Error creating file!" << std::endl;
+        std::cout << "Error opening file " << filename << std::endl;
         return false;
     }
     std::streampos fileSize = file.tellg(); // Gets the file size
@@ -61,7 +61,6 @@ bool Socket::sendFile(std::string filename, int clientSocketFd)
 
     for (Packet &p : packets)
     {
-        std::cout << "Sending packet number " << p.seqn << " of " << p.totalSize << std::endl;
         std::vector<uint8_t> serializedPacket = p.serialize();
 
         ssize_t sentBytes = send(clientSocketFd, serializedPacket.data(), serializedPacket.size(), 0);
@@ -70,9 +69,9 @@ bool Socket::sendFile(std::string filename, int clientSocketFd)
             std::cerr << "Error sending file!" << std::endl;
             return false;
         }
-        std::cout << "Sent " << sentBytes << " bytes!" << std::endl;
     }
 
+    std::cout << "File " << filename << " succesfully sent " << std::endl;
     file.close();
     return true;
 }
@@ -80,7 +79,7 @@ bool Socket::sendFile(std::string filename, int clientSocketFd)
 bool Socket::receiveFile(std::string filename, int socketFd, std::string username)
 {
     std::vector<Packet> filePackets;
-    std::cout << "Receiving file : " << filename << std::endl;
+    std::cout << "[#] Receiving file : " << filename << std::endl;
 
     while (true)
     {
@@ -96,7 +95,6 @@ bool Socket::receiveFile(std::string filename, int socketFd, std::string usernam
         std::vector<uint8_t> byteStream(dataBuffer.begin(), dataBuffer.begin() + bytesRead);
         Packet assembledPacket = Packet::deserialize(byteStream);
 
-        // std::cout << "[+] Received packet " << assembledPacket.seqn << " / " << assembledPacket.totalSize << " of file " << filename << "." << std::endl;
         filePackets.push_back(std::move(assembledPacket));
 
         if (assembledPacket.seqn == assembledPacket.totalSize)
@@ -107,7 +105,7 @@ bool Socket::receiveFile(std::string filename, int socketFd, std::string usernam
     std::ofstream newFile(filePath, std::ios::binary);
     if (!newFile)
     {
-        std::cerr << "[-] Failed creating file" << std::endl;
+        std::cerr << "[-] Failed creating file "<< filePath << std::endl;
         return false;
     }
 
@@ -137,7 +135,7 @@ Packet Socket::receiveMessage(int clientSocketFd)
 
     if (bytesRead == 0)
     {
-        std::cerr << "[-] Client suddenly disconnected!" << std::endl;
+        std::cerr << "[-] Client disconnected!" << std::endl;
         return Packet(FAILURE);
     }
 
