@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <filesystem>
 #include "../../Common/FileHandler.hpp"
+#include <numeric>
 
 class ClientHandler
 {
@@ -20,6 +21,7 @@ public:
     std::string getClientUsername();
 
     void getSyncDir();
+    void listServer(std::string username);
 
 private:
     int clientSocket;

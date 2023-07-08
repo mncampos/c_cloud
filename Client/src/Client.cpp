@@ -10,7 +10,7 @@ void Client::uploadFile(std::string fileName)
 
     if (!this->socket.sendMessage(this->socket.getSocketFd(),
                                   Packet(COMMAND_PKT, 1, 1, command.length() + 1, command.c_str())))
-        std::cerr << "Error sending command!" << std::endl;
+        std::cerr << "[-] Error sending command!" << std::endl;
 
     sleep(1);
 
@@ -32,9 +32,26 @@ void Client::deleteFile(std::string fileName)
 }
 void Client::listServerFiles()
 {
+    std::string command = "list_server";
+
+    if (!this->socket.sendMessage(this->socket.getSocketFd(),
+                                  Packet(COMMAND_PKT, 1, 1, command.length() + 1, command.c_str())))
+        std::cerr << "[-] Error sending command!" << std::endl;
+
+    Packet pkt = this->socket.receiveMessage(this->socket.getSocketFd());
+    std::cout << "Server files:" << std::endl;
+    std::cout << pkt.payload.get() << std::endl;
 }
 void Client::listClientFiles()
 {
+    std::string filepath = "sync_dir_" + username;
+
+    std::vector<std::string> files = FileHandler::getFileList(filepath);
+    std::cout << "Local files:" << std::endl;
+    for (std::string str : files)
+    {
+        std::cout << str << std::endl;
+    }
 }
 void Client::getSyncDir()
 {

@@ -22,6 +22,7 @@ enum PacketType
     FILE_INFO_PKT,    // A Packet that contains file information such as size and modified time
     FINAL_PKT,        // Notifies that a certain transaction has finished
     REQUEST_FILE,     // Requests a file from the user dir, contains the filename
+    FILE_LIST,        // Contains a payload of filenames
 };
 
 class Packet

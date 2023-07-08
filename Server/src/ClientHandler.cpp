@@ -30,6 +30,11 @@ void ClientHandler::handleClient()
                 serverSocket->receiveFile(fileNamePkt.payload.get(), clientSocket, this->clientUsername);
                 continue;
             }
+            else if (payload == "list_server")
+            {
+                this->listServer(this->clientUsername);
+                continue;
+            }
             else if (payload == "exit")
             {
                 std::cout << "Disconnecting " << clientUsername << std::endl;
@@ -39,7 +44,6 @@ void ClientHandler::handleClient()
 
         if (pkt.type == REQUEST_FILE)
         {
-            std::cout << "Recebi viu " << pkt.payload.get() << std::endl;
             serverSocket->sendFile(pkt.payload.get(), clientSocket);
             continue;
         }
@@ -98,5 +102,17 @@ void ClientHandler::getSyncDir()
 
     this->serverSocket->sendMessage(this->clientSocket, Packet(FINAL_PKT));
     std::cout << "[+] Sync successful." << std::endl;
+    return;
+}
+
+void ClientHandler::listServer(std::string username)
+{
+    std::string filepath = "sync_dir_" + username;
+
+    std::vector<std::string> files = FileHandler::getFileList(filepath);
+    std::string newPayload = std::accumulate(files.begin(), files.end(), std::string(),
+                                             [](const std::string &acc, const std::string &str)
+                                             { return acc + str + "\n"; });
+    this->serverSocket->sendMessage(this->clientSocket, Packet(FILE_LIST, 1, 1, newPayload.length(), newPayload.c_str()));
     return;
 }
