@@ -121,3 +121,9 @@ void Client::requestSync()
 {
     this->socket.sendMessage(this->socket.getSocketFd(), Packet(SYNC_PKT));
 }
+
+
+ std::string Client::getUsername()
+ {
+    return this->username;
+ }

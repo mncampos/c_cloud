@@ -15,7 +15,7 @@ enum PacketType
     USERNAME_PKT = 1, // Packet that sends a username
     FILE_PKT,         // Sends a file
     COMMAND_PKT,      // Sends a command
-    NOTIFY_PKT,       // Sends a notification, usually if the user disconnected
+    NOTIFY_PKT,       // Sends a notification, like an update
     FAILURE,          // Packet failed
     FILENAME_PKT,     // A Packet that contains a filename, usually sent before a file
     DISCONNECTED,     // A Packet that nofities about the client DC

@@ -41,7 +41,6 @@ std::vector<std::string> FileHandler::getDetailedFileList(std::string directory)
 std::string FileHandler::packDetailedInfo(std::string fileName, uintmax_t fileSize, std::time_t modificationTime, std::time_t access_time, std::time_t creation_time)
 {
     return "File: " + fileName + "\n" + "|" + "File size: " + formatSize(fileSize) + "\n" + "|" + "Last modified: " + formatTime(modificationTime) + "\n" + "|" + "Last accessed: " + formatTime(access_time) + "\n" + "|" + "Creation Time: " + formatTime(creation_time) + "\n";
-
 }
 
 std::string FileHandler::packInfo(std::string fileName, uintmax_t fileSize, std::time_t time)
@@ -122,4 +121,57 @@ std::string FileHandler::extractFilename(std::string filepath)
 bool FileHandler::deleteFile(std::string filepath)
 {
     return std::remove(filepath.c_str()) != 0;
+}
+
+std::string FileHandler::monitorDirectory(std::string syncDir)
+{
+    int inotifyFd = inotify_init();
+    if (inotifyFd == -1)
+    {
+        std::cerr << "[-] Failed to initialize inotify" << std::endl;
+        return nullptr;
+    }
+    int watchDescriptor = inotify_add_watch(inotifyFd, syncDir.c_str(), IN_CREATE | IN_MODIFY | IN_DELETE);
+    if (watchDescriptor == -1)
+    {
+        std::cerr << "[-] Failed to add watch to " << syncDir << std::endl;
+        return nullptr;
+    }
+
+    char buffer[4096];
+    while (true)
+    {
+        int bytesRead = read(inotifyFd, buffer, 4096);
+        if (bytesRead == -1)
+        {
+            std::cerr << "[-] Failed to read inotify events" << std::endl;
+            return nullptr;
+        }
+        struct inotify_event *event = nullptr;
+        for (char *ptr = buffer; ptr < buffer + bytesRead; ptr += sizeof(struct inotify_event) + event->len)
+        {
+            event = reinterpret_cast<struct inotify_event *>(ptr);
+
+            if (event->mask & IN_CREATE)
+            {
+                sleep(1);
+                std::string fileName = event->name;
+                return "insert:" + fileName;
+            }
+
+            if (event->mask & IN_MODIFY)
+            {
+                sleep(1);
+                std::string fileName = event->name;
+                return "update:" + fileName;
+            }
+
+            if (event->mask & IN_DELETE)
+            {
+                sleep(1);
+                std::string fileName = event->name;
+                return "delete:" + fileName;
+            }
+        }
+    }
 }

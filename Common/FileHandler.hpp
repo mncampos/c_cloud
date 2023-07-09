@@ -8,6 +8,9 @@
 #include <sys/stat.h>
 #include <iomanip>
 #include <ctime>
+#include <sys/inotify.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 class FileHandler{
     public:
@@ -21,6 +24,7 @@ class FileHandler{
     static std::vector<std::string> getFileInfo(std::string filepath);
     static std::string extractFilename(std::string filepath);
     static bool deleteFile(std::string filepath);
+    static std::string monitorDirectory(std::string syncDir);
 };
 
 #endif

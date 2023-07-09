@@ -39,13 +39,13 @@ bool Socket::sendUserFile(std::string username, int clientSocketFd, std::string 
     std::ifstream file(filename, std::ios::binary | std::ios::ate);
     if (!file)
     {
-        std::cout << "Error opening file " << filename << std::endl;
+        std::cout << "[-] Error opening file " << filename << std::endl;
         sendMessage(clientSocketFd, Packet(FAILURE));
         return false;
     }
     std::streampos fileSize = file.tellg(); // Gets the file size
     uint32_t numPackets = std::ceil(static_cast<double>(fileSize) / MAX_PAYLOAD);
-    std::cout << "Sending file : " << filename << " \nSize : " << fileSize << " \nPackets required : " << numPackets << std::endl;
+    std::cout << "[+] Sending file : " << filename << " \nSize : " << fileSize << " \nPackets required : " << numPackets << std::endl;
     file.seekg(0, std::ios::beg);
 
     std::vector<Packet> packets;
@@ -71,13 +71,13 @@ bool Socket::sendUserFile(std::string username, int clientSocketFd, std::string 
         ssize_t sentBytes = send(clientSocketFd, serializedPacket.data(), serializedPacket.size(), 0);
         if (sentBytes == -1 || sentBytes == 0)
         {
-            std::cerr << "Error sending file!" << std::endl;
+            std::cerr << "[-] Error sending file!" << std::endl;
             sendMessage(clientSocketFd, Packet(FAILURE));
             return false;
         }
     }
 
-    std::cout << "File " << filename << " succesfully sent " << std::endl;
+    std::cout << "[+] File " << filename << " succesfully sent " << std::endl;
     file.close();
     return true;
 }
@@ -87,13 +87,12 @@ bool Socket::sendFile(std::string filename, int clientSocketFd)
     std::ifstream file(filename, std::ios::binary | std::ios::ate);
     if (!file)
     {
-        std::cout << "Error opening file " << filename << std::endl;
+        std::cout << "[-] Error opening file " << filename << std::endl;
         sendMessage(clientSocketFd, Packet(FAILURE));
         return false;
     }
     std::streampos fileSize = file.tellg(); // Gets the file size
     uint32_t numPackets = std::ceil(static_cast<double>(fileSize) / MAX_PAYLOAD);
-    std::cout << "Sending file : " << filename << " \nSize : " << fileSize << " \nPackets required : " << numPackets << std::endl;
     file.seekg(0, std::ios::beg);
 
     std::vector<Packet> packets;
@@ -119,13 +118,13 @@ bool Socket::sendFile(std::string filename, int clientSocketFd)
         ssize_t sentBytes = send(clientSocketFd, serializedPacket.data(), serializedPacket.size(), 0);
         if (sentBytes == -1 || sentBytes == 0)
         {
-            std::cerr << "Error sending file!" << std::endl;
+            std::cerr << "[-] Error sending file!" << std::endl;
             sendMessage(clientSocketFd, Packet(FAILURE));
             return false;
         }
     }
 
-    std::cout << "File " << filename << " succesfully sent " << std::endl;
+    std::cout << "[+] File " << filename << " succesfully sent " << std::endl;
     file.close();
     return true;
 }

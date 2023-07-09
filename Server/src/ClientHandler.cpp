@@ -38,7 +38,7 @@ void ClientHandler::handleClient()
             }
             else if (payload == "exit")
             {
-                std::cout << "Disconnecting " << clientUsername << std::endl;
+                std::cout << "[-] Disconnecting " << clientUsername << std::endl;
                 return;
             }
         }
@@ -59,8 +59,34 @@ void ClientHandler::handleClient()
         }
         if (pkt.type == REQUEST_FILE)
         {
-            serverSocket->sendUserFile(this->clientUsername, clientSocket, pkt.payload.get());
+            serverSocket->sendUserFile(this->clientUsername, clientSocket, FileHandler::extractFilename(pkt.payload.get()));
             continue;
+        }
+
+        if (pkt.type == NOTIFY_PKT)
+        {
+            std::istringstream iss(pkt.payload.get());
+            std::string eventName, fileName;
+
+            if (std::getline(iss, eventName, ':') && std::getline(iss, fileName))
+            {
+                if (eventName == "insert")
+                {   
+                    if(serverSocket->receiveFile(fileName, clientSocket, clientUsername))
+                    continue;
+                }
+                if (eventName == "delete")
+                {
+                    FileHandler::deleteFile("sync_dir_" + clientUsername + "/" + fileName);
+                    continue;
+                }
+                if (eventName == "update")
+                {
+                    FileHandler::deleteFile("sync_dir_" + clientUsername + "/" + fileName);
+                    serverSocket->receiveFile(fileName, clientSocket, clientUsername);
+                    continue;
+                }
+            }
         }
 
         else
