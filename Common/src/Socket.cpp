@@ -64,18 +64,26 @@ bool Socket::sendUserFile(std::string username, int clientSocketFd, std::string 
         ++sequence;
     }
 
-    for (Packet &p : packets)
-    {
-        std::vector<uint8_t> serializedPacket = p.serialize();
+for (Packet &p : packets)
+{
+    std::vector<uint8_t> serializedPacket = p.serialize();
+    size_t totalBytesSent = 0;
+    ssize_t sentBytes;
 
-        ssize_t sentBytes = send(clientSocketFd, serializedPacket.data(), serializedPacket.size(), 0);
+    while (totalBytesSent < serializedPacket.size())
+    {
+        sentBytes = send(clientSocketFd, serializedPacket.data() + totalBytesSent, serializedPacket.size() - totalBytesSent, 0);
+        std::cout << "Sending packet number " << p.seqn << " of " << p.totalSize << std::endl;
         if (sentBytes == -1 || sentBytes == 0)
         {
             std::cerr << "[-] Error sending file!" << std::endl;
             sendMessage(clientSocketFd, Packet(FAILURE));
             return false;
         }
+
+        totalBytesSent += sentBytes;
     }
+}
 
     std::cout << "[+] File " << filename << " succesfully sent " << std::endl;
     file.close();
@@ -93,6 +101,7 @@ bool Socket::sendFile(std::string filename, int clientSocketFd)
     }
     std::streampos fileSize = file.tellg(); // Gets the file size
     uint32_t numPackets = std::ceil(static_cast<double>(fileSize) / MAX_PAYLOAD);
+    std::cout << "[+] Sending file : " << filename << " Size : " << fileSize << " Packets required : " << numPackets << std::endl;
     file.seekg(0, std::ios::beg);
 
     std::vector<Packet> packets;
@@ -111,18 +120,29 @@ bool Socket::sendFile(std::string filename, int clientSocketFd)
         ++sequence;
     }
 
-    for (Packet &p : packets)
-    {
-        std::vector<uint8_t> serializedPacket = p.serialize();
+for (Packet &p : packets)
+{
+    std::vector<uint8_t> serializedPacket = p.serialize();
+    size_t totalBytesSent = 0;
+    ssize_t sentBytes;
 
-        ssize_t sentBytes = send(clientSocketFd, serializedPacket.data(), serializedPacket.size(), 0);
+    while (totalBytesSent < serializedPacket.size())
+    {
+        sentBytes = send(clientSocketFd, serializedPacket.data() + totalBytesSent, serializedPacket.size() - totalBytesSent, 0);
+        std::cout << "Sending packet number " << p.seqn << " of " << p.totalSize << std::endl;
+        
         if (sentBytes == -1 || sentBytes == 0)
         {
             std::cerr << "[-] Error sending file!" << std::endl;
             sendMessage(clientSocketFd, Packet(FAILURE));
             return false;
         }
+
+        
+
+        totalBytesSent += sentBytes;
     }
+}
 
     std::cout << "[+] File " << filename << " succesfully sent " << std::endl;
     file.close();
@@ -193,6 +213,8 @@ bool Socket::receiveFile(std::string filename, int socketFd, std::string usernam
 
         std::vector<uint8_t> byteStream(dataBuffer.begin(), dataBuffer.begin() + bytesRead);
         Packet assembledPacket = Packet::deserialize(byteStream);
+
+        std::cout << "Received packet number " << assembledPacket.seqn << " of " << assembledPacket.totalSize << std::endl;
 
         filePackets.push_back(std::move(assembledPacket));
 
