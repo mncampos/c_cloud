@@ -3,6 +3,7 @@
 
 #include "../../Common/Socket.hpp"
 #include <fstream>
+#include <unordered_map>
 #include <algorithm>
 
 class ServerSocket : public Socket {
