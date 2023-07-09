@@ -73,16 +73,12 @@ bool Socket::sendUserFile(std::string username, int clientSocketFd, std::string 
         while (totalBytesSent < serializedPacket.size())
         {
             sentBytes = send(clientSocketFd, serializedPacket.data() + totalBytesSent, serializedPacket.size() - totalBytesSent, 0);
-            std::cout << "Sending packet number " << p.seqn << " of " << p.totalSize << std::endl;
-
             if (sentBytes == -1 || sentBytes == 0)
             {
                 std::cerr << "[-] Error sending file!" << std::endl;
                 sendMessage(clientSocketFd, Packet(FAILURE));
                 return false;
             }
-
-            std::cout << "Sent bytes -> " << sentBytes << std::endl;
             totalBytesSent += sentBytes;
         }
     }
@@ -103,7 +99,6 @@ bool Socket::sendFile(std::string filename, int clientSocketFd)
     }
     std::streampos fileSize = file.tellg(); // Gets the file size
     uint32_t numPackets = std::ceil(static_cast<double>(fileSize) / MAX_PAYLOAD);
-    std::cout << "[+] Sending file : " << filename << " Size : " << fileSize << " Packets required : " << numPackets << std::endl;
     file.seekg(0, std::ios::beg);
 
     std::vector<Packet> packets;
@@ -131,7 +126,6 @@ bool Socket::sendFile(std::string filename, int clientSocketFd)
         while (totalBytesSent < serializedPacket.size())
         {
             sentBytes = send(clientSocketFd, serializedPacket.data() + totalBytesSent, serializedPacket.size() - totalBytesSent, 0);
-            std::cout << "Sending packet number " << p.seqn << " of " << p.totalSize << std::endl;
 
             if (sentBytes == -1 || sentBytes == 0)
             {
@@ -139,8 +133,6 @@ bool Socket::sendFile(std::string filename, int clientSocketFd)
                 sendMessage(clientSocketFd, Packet(FAILURE));
                 return false;
             }
-
-            std::cout << "Sent bytes -> " << sentBytes << std::endl;
 
             totalBytesSent += sentBytes;
         }
@@ -158,17 +150,43 @@ bool Socket::downloadFile(std::string filename, int socketFd)
 
     while (true)
     {
-        std::vector<uint8_t> dataBuffer(MAX_PAYLOAD + 10);
-        ssize_t bytesRead = recv(socketFd, dataBuffer.data(), dataBuffer.size(), 0);
+        std::vector<uint8_t> dataInfoBuffer(10);
+        ssize_t totalInfoBytes = 0;
+        ssize_t infoBytesRead = 0;
 
-        if (bytesRead == 1)
+        // Read the first 10 bytes (packet info)
+        while (totalInfoBytes < 10)
         {
-            std::cerr << "[-] Failed to receive data!" << std::endl;
-            return false;
-        }
+            infoBytesRead = recv(socketFd, dataInfoBuffer.data() + totalInfoBytes, 10 - totalInfoBytes, 0);
 
+            if (infoBytesRead <= 0)
+            {
+                std::cerr << "[-] Failed to receive data!" << std::endl;
+                return false;
+            }
+            totalInfoBytes += infoBytesRead;
+        }
+        uint16_t length = ntohs(*reinterpret_cast<const uint16_t *>(dataInfoBuffer.data() + 8));
+
+        std::vector<uint8_t> dataBuffer(10 + length);
+        std::copy(dataInfoBuffer.begin(), dataInfoBuffer.end(), dataBuffer.begin());
+        ssize_t totalBytes = 0;
+        ssize_t bytesRead = 0;
+
+        while (totalBytes < length)
+        {
+            bytesRead = recv(socketFd, dataBuffer.data() + 10 + totalBytes, length - totalBytes, 0);
+
+            if (bytesRead == -1)
+            {
+                std::cerr << "[-] Failed to receive data!" << std::endl;
+                return false;
+            }
+
+            totalBytes += bytesRead;
+        }
         std::vector<uint8_t> byteStream(dataBuffer.begin(), dataBuffer.begin() + bytesRead);
-        Packet assembledPacket = Packet::deserialize(byteStream);
+        Packet assembledPacket = Packet::deserialize(dataBuffer);
 
         filePackets.push_back(std::move(assembledPacket));
 
@@ -208,7 +226,7 @@ bool Socket::receiveFile(std::string filename, int socketFd, std::string usernam
         ssize_t totalInfoBytes = 0;
         ssize_t infoBytesRead = 0;
 
-    // Read the first 10 bytes (packet info)
+        // Read the first 10 bytes (packet info)
         while (totalInfoBytes < 10)
         {
             infoBytesRead = recv(socketFd, dataInfoBuffer.data() + totalInfoBytes, 10 - totalInfoBytes, 0);
@@ -220,9 +238,7 @@ bool Socket::receiveFile(std::string filename, int socketFd, std::string usernam
             }
             totalInfoBytes += infoBytesRead;
         }
-        uint16_t length = ntohs(*reinterpret_cast<const uint16_t*>(dataInfoBuffer.data() + 8));
-
-        std::cout << "EXPECTING " << length << " BYTES!!" << std::endl;
+        uint16_t length = ntohs(*reinterpret_cast<const uint16_t *>(dataInfoBuffer.data() + 8));
 
         std::vector<uint8_t> dataBuffer(10 + length);
         std::copy(dataInfoBuffer.begin(), dataInfoBuffer.end(), dataBuffer.begin());
@@ -241,12 +257,8 @@ bool Socket::receiveFile(std::string filename, int socketFd, std::string usernam
 
             totalBytes += bytesRead;
         }
-        std::cout << "BYTES READ " << bytesRead << std::endl;
         std::vector<uint8_t> byteStream(dataBuffer.begin(), dataBuffer.begin() + bytesRead);
         Packet assembledPacket = Packet::deserialize(dataBuffer);
-
-        std::cout << "Received packet number " << assembledPacket.seqn << " of " << assembledPacket.totalSize << std::endl;
-        std::cout << "Received bytes : " << bytesRead << std::endl;
 
         filePackets.push_back(std::move(assembledPacket));
 
