@@ -82,7 +82,7 @@ bool Socket::sendUserFile(std::string username, int clientSocketFd, std::string 
                 return false;
             }
 
-std::cout << "Sent bytes -> " << sentBytes << std::endl;
+            std::cout << "Sent bytes -> " << sentBytes << std::endl;
             totalBytesSent += sentBytes;
         }
     }
@@ -204,18 +204,46 @@ bool Socket::receiveFile(std::string filename, int socketFd, std::string usernam
 
     while (true)
     {
-        std::vector<uint8_t> dataBuffer(MAX_PAYLOAD + 10);
+        std::vector<uint8_t> dataInfoBuffer(10);
+        ssize_t totalInfoBytes = 0;
+        ssize_t infoBytesRead = 0;
 
-        ssize_t bytesRead = recv(socketFd, dataBuffer.data(), dataBuffer.size(), 0);
-
-        if (bytesRead == 1)
+    // Read the first 10 bytes (packet info)
+        while (totalInfoBytes < 10)
         {
-            std::cerr << "[-] Failed to receive data!" << std::endl;
-            return false;
-        }
+            infoBytesRead = recv(socketFd, dataInfoBuffer.data() + totalInfoBytes, 10 - totalInfoBytes, 0);
 
+            if (infoBytesRead <= 0)
+            {
+                std::cerr << "[-] Failed to receive data!" << std::endl;
+                return false;
+            }
+            totalInfoBytes += infoBytesRead;
+        }
+        uint16_t length = ntohs(*reinterpret_cast<const uint16_t*>(dataInfoBuffer.data() + 8));
+
+        std::cout << "EXPECTING " << length << " BYTES!!" << std::endl;
+
+        std::vector<uint8_t> dataBuffer(10 + length);
+        std::copy(dataInfoBuffer.begin(), dataInfoBuffer.end(), dataBuffer.begin());
+        ssize_t totalBytes = 0;
+        ssize_t bytesRead = 0;
+
+        while (totalBytes < length)
+        {
+            bytesRead = recv(socketFd, dataBuffer.data() + 10 + totalBytes, length - totalBytes, 0);
+
+            if (bytesRead == -1)
+            {
+                std::cerr << "[-] Failed to receive data!" << std::endl;
+                return false;
+            }
+
+            totalBytes += bytesRead;
+        }
+        std::cout << "BYTES READ " << bytesRead << std::endl;
         std::vector<uint8_t> byteStream(dataBuffer.begin(), dataBuffer.begin() + bytesRead);
-        Packet assembledPacket = Packet::deserialize(byteStream);
+        Packet assembledPacket = Packet::deserialize(dataBuffer);
 
         std::cout << "Received packet number " << assembledPacket.seqn << " of " << assembledPacket.totalSize << std::endl;
         std::cout << "Received bytes : " << bytesRead << std::endl;
