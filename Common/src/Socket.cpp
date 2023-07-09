@@ -64,26 +64,28 @@ bool Socket::sendUserFile(std::string username, int clientSocketFd, std::string 
         ++sequence;
     }
 
-for (Packet &p : packets)
-{
-    std::vector<uint8_t> serializedPacket = p.serialize();
-    size_t totalBytesSent = 0;
-    ssize_t sentBytes;
-
-    while (totalBytesSent < serializedPacket.size())
+    for (Packet &p : packets)
     {
-        sentBytes = send(clientSocketFd, serializedPacket.data() + totalBytesSent, serializedPacket.size() - totalBytesSent, 0);
-        std::cout << "Sending packet number " << p.seqn << " of " << p.totalSize << std::endl;
-        if (sentBytes == -1 || sentBytes == 0)
-        {
-            std::cerr << "[-] Error sending file!" << std::endl;
-            sendMessage(clientSocketFd, Packet(FAILURE));
-            return false;
-        }
+        std::vector<uint8_t> serializedPacket = p.serialize();
+        size_t totalBytesSent = 0;
+        ssize_t sentBytes;
 
-        totalBytesSent += sentBytes;
+        while (totalBytesSent < serializedPacket.size())
+        {
+            sentBytes = send(clientSocketFd, serializedPacket.data() + totalBytesSent, serializedPacket.size() - totalBytesSent, 0);
+            std::cout << "Sending packet number " << p.seqn << " of " << p.totalSize << std::endl;
+
+            if (sentBytes == -1 || sentBytes == 0)
+            {
+                std::cerr << "[-] Error sending file!" << std::endl;
+                sendMessage(clientSocketFd, Packet(FAILURE));
+                return false;
+            }
+
+std::cout << "Sent bytes -> " << sentBytes << std::endl;
+            totalBytesSent += sentBytes;
+        }
     }
-}
 
     std::cout << "[+] File " << filename << " succesfully sent " << std::endl;
     file.close();
@@ -120,29 +122,29 @@ bool Socket::sendFile(std::string filename, int clientSocketFd)
         ++sequence;
     }
 
-for (Packet &p : packets)
-{
-    std::vector<uint8_t> serializedPacket = p.serialize();
-    size_t totalBytesSent = 0;
-    ssize_t sentBytes;
-
-    while (totalBytesSent < serializedPacket.size())
+    for (Packet &p : packets)
     {
-        sentBytes = send(clientSocketFd, serializedPacket.data() + totalBytesSent, serializedPacket.size() - totalBytesSent, 0);
-        std::cout << "Sending packet number " << p.seqn << " of " << p.totalSize << std::endl;
-        
-        if (sentBytes == -1 || sentBytes == 0)
+        std::vector<uint8_t> serializedPacket = p.serialize();
+        size_t totalBytesSent = 0;
+        ssize_t sentBytes;
+
+        while (totalBytesSent < serializedPacket.size())
         {
-            std::cerr << "[-] Error sending file!" << std::endl;
-            sendMessage(clientSocketFd, Packet(FAILURE));
-            return false;
+            sentBytes = send(clientSocketFd, serializedPacket.data() + totalBytesSent, serializedPacket.size() - totalBytesSent, 0);
+            std::cout << "Sending packet number " << p.seqn << " of " << p.totalSize << std::endl;
+
+            if (sentBytes == -1 || sentBytes == 0)
+            {
+                std::cerr << "[-] Error sending file!" << std::endl;
+                sendMessage(clientSocketFd, Packet(FAILURE));
+                return false;
+            }
+
+            std::cout << "Sent bytes -> " << sentBytes << std::endl;
+
+            totalBytesSent += sentBytes;
         }
-
-        
-
-        totalBytesSent += sentBytes;
     }
-}
 
     std::cout << "[+] File " << filename << " succesfully sent " << std::endl;
     file.close();
@@ -203,6 +205,7 @@ bool Socket::receiveFile(std::string filename, int socketFd, std::string usernam
     while (true)
     {
         std::vector<uint8_t> dataBuffer(MAX_PAYLOAD + 10);
+
         ssize_t bytesRead = recv(socketFd, dataBuffer.data(), dataBuffer.size(), 0);
 
         if (bytesRead == 1)
@@ -215,6 +218,7 @@ bool Socket::receiveFile(std::string filename, int socketFd, std::string usernam
         Packet assembledPacket = Packet::deserialize(byteStream);
 
         std::cout << "Received packet number " << assembledPacket.seqn << " of " << assembledPacket.totalSize << std::endl;
+        std::cout << "Received bytes : " << bytesRead << std::endl;
 
         filePackets.push_back(std::move(assembledPacket));
 

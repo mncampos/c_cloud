@@ -37,6 +37,9 @@ void *monitorSyncDir(void *arg)
 
 int main(int argc, char *argv[])
 {
+
+
+
     if (argc < 4)
     {
         std::cerr << "[-] Invalid number of parameters." << std::endl
@@ -44,11 +47,13 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+
     std::string username = argv[1];
     std::string serverIP = argv[2];
     int port = std::stoi(argv[3]);
 
     Client client(username, serverIP, port);
+
 
     if (!client.socket.connectToServer())
     {
@@ -57,6 +62,8 @@ int main(int argc, char *argv[])
     }
     else
         std::cout << "[+] Connected to server succesfully!" << std::endl;
+
+        
 
     // Send user info to server
     if (!client.socket.sendUsername(username))
