@@ -30,6 +30,7 @@ public:
     void listClientFiles();
     void getSyncDir();
     void requestSync();
+    void listenForSignal();
     std::string getUsername();
 
 

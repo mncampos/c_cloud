@@ -3,6 +3,8 @@
 pthread_mutex_t syncMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t syncCond = PTHREAD_COND_INITIALIZER;
 bool isSyncReady = false;
+pthread_cond_t listenCond = PTHREAD_COND_INITIALIZER;
+bool shouldListen = false;
 
 void *monitorSyncDir(void *arg)
 {
@@ -35,10 +37,26 @@ void *monitorSyncDir(void *arg)
     pthread_exit(nullptr);
 }
 
+void *listenForSignal(void *arg)
+{
+    Client *client = static_cast<Client *>(arg);
+
+    while (true)
+    {
+        // listen to something on the socket
+        pthread_mutex_lock(&syncMutex);
+        while (shouldListen)
+        {
+            client->listenForSignal();
+        }
+        pthread_cond_wait(&listenCond, &syncMutex);
+        pthread_mutex_unlock(&syncMutex);
+    }
+    pthread_exit(nullptr);
+}
+
 int main(int argc, char *argv[])
 {
-
-
 
     if (argc < 4)
     {
@@ -47,13 +65,11 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-
     std::string username = argv[1];
     std::string serverIP = argv[2];
     int port = std::stoi(argv[3]);
 
     Client client(username, serverIP, port);
-
 
     if (!client.socket.connectToServer())
     {
@@ -62,8 +78,6 @@ int main(int argc, char *argv[])
     }
     else
         std::cout << "[+] Connected to server succesfully!" << std::endl;
-
-        
 
     // Send user info to server
     if (!client.socket.sendUsername(username))
@@ -89,6 +103,15 @@ int main(int argc, char *argv[])
     pthread_cond_signal(&syncCond);
     pthread_mutex_unlock(&syncMutex);
 
+    pthread_t listenThread;
+    if (pthread_create(&listenThread, nullptr, listenForSignal, static_cast<void *>(&client)) != 0)
+    {
+        std::cerr << "Failed to create listen thread!" << std::endl;
+        exit(1);
+    }
+
+    pthread_detach(listenThread);
+
     while (true)
     {
         std::string command;
@@ -103,11 +126,32 @@ int main(int argc, char *argv[])
         std::transform(cmdName.begin(), cmdName.end(), cmdName.begin(), ::tolower);
 
         if (cmdName == "upload")
+        {
+            shouldListen = false; // Stop listening
             client.uploadFile(fileName);
+            shouldListen = true; // Start listening again
+            pthread_mutex_lock(&syncMutex);
+            pthread_cond_signal(&listenCond); // Signal the listen thread to start listening again
+            pthread_mutex_unlock(&syncMutex);
+        }
         else if (cmdName == "download")
+        {
+            shouldListen = false; // Stop listening
             client.downloadFile(fileName);
+            shouldListen = true; // Start listening again
+            pthread_mutex_lock(&syncMutex);
+            pthread_cond_signal(&listenCond); // Signal the listen thread to start listening again
+            pthread_mutex_unlock(&syncMutex);
+        }
         else if (cmdName == "delete")
+        {
+            shouldListen = false; // Stop listening
             client.deleteFile(fileName);
+            shouldListen = true; // Start listening again
+            pthread_mutex_lock(&syncMutex);
+            pthread_cond_signal(&listenCond); // Signal the listen thread to start listening again
+            pthread_mutex_unlock(&syncMutex);
+        }
         else if (cmdName == "list_server")
             client.listServerFiles();
         else if (cmdName == "list_client")

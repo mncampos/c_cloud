@@ -14,6 +14,7 @@ public:
     bool sendUsername(std::string username);
     std::string getAddress();
     bool getSyncFile(std::string filename, std::string username);
+    
 
 private:
     int serverSocketFd;

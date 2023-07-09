@@ -12,10 +12,14 @@ class ServerSocket : public Socket {
     bool listen(int backlog = 5);
     int accept();
 
+    void addClientSocket(std::string username, int socket);
+    void sendSignal(std::string username, int signalCode, int excludedSocket); // See packet.hpp for codes
+    void removeClientSocket(int socket);
 
 
     private:
     int port;
+    std::unordered_map<std::string, std::vector<int>> clientSockets;
 
 };
 

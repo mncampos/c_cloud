@@ -42,3 +42,41 @@ int ServerSocket::accept()
         return -1;
 }
 
+void ServerSocket::addClientSocket(std::string username, int socket)
+{
+    this->clientSockets[username].push_back(socket);
+}
+
+void ServerSocket::sendSignal(std::string username, int signalCode, int excludedSocket)
+{
+    auto iterator = clientSockets.find(username);
+    if (iterator != clientSockets.end())
+    {
+        const std::vector<int> &sockets = iterator->second;
+        for (int socket : sockets)
+        {
+            if (socket != excludedSocket)
+            {
+                sendMessage(socket, Packet(signalCode));
+            }
+        }
+    }
+}
+
+void ServerSocket::removeClientSocket(int socketFd)
+{
+    for (auto &pair : clientSockets)
+    {
+        std::vector<int> &sockets = pair.second;
+        auto it = std::find(sockets.begin(), sockets.end(), socketFd);
+        if (it != sockets.end())
+        {
+            sockets.erase(it);
+            if (sockets.empty())
+            {
+                clientSockets.erase(pair.first);
+            }
+            break;
+        }
+    }
+}

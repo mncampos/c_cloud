@@ -127,3 +127,12 @@ void Client::requestSync()
  {
     return this->username;
  }
+
+ void Client::listenForSignal()
+{
+    Packet pkt = this->socket.receiveMessage(this->socket.getSocketFd());
+    if(pkt.type = SYNC_PKT)
+    {
+        getSyncDir();
+    }
+}

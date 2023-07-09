@@ -68,12 +68,14 @@ void ClientHandler::handleClient()
             std::istringstream iss(pkt.payload.get());
             std::string eventName, fileName;
 
+            std::cout << "Received " << eventName << std::endl;
+
             if (std::getline(iss, eventName, ':') && std::getline(iss, fileName))
             {
                 if (eventName == "insert")
-                {   
-                    if(serverSocket->receiveFile(fileName, clientSocket, clientUsername))
-                    continue;
+                {
+                    if (serverSocket->receiveFile(fileName, clientSocket, clientUsername))
+                        continue;
                 }
                 if (eventName == "delete")
                 {
@@ -87,6 +89,8 @@ void ClientHandler::handleClient()
                     continue;
                 }
             }
+
+            this->serverSocket->sendSignal(this->clientUsername, SYNC_PKT, this->clientSocket);
         }
 
         else

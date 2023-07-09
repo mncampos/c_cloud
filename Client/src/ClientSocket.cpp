@@ -50,3 +50,4 @@ bool ClientSocket::getSyncFile(std::string filename, std::string username)
     
     return receiveFile(FileHandler::extractFilename(filename), this->socketFd, username); 
 }
+

@@ -12,9 +12,8 @@ void *handleClient(void *arg)
     std::cout << "[+] User " << receivedPacket.payload.get() << " connected!" << std::endl;
     clientHandler->setClientUsername(receivedPacket.payload.get());
     clientHandler->getSyncDir();
-    
-    clientHandler->handleClient();
 
+    clientHandler->handleClient();
 
     close(clientHandler->getClientSocket());
     std::cout << "[+] User " << clientHandler->getClientUsername() << " successfully disconnected." << std::endl;

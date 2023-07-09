@@ -45,7 +45,7 @@ bool Socket::sendUserFile(std::string username, int clientSocketFd, std::string 
     }
     std::streampos fileSize = file.tellg(); // Gets the file size
     uint32_t numPackets = std::ceil(static_cast<double>(fileSize) / MAX_PAYLOAD);
-    std::cout << "[+] Sending file : " << filename << " \nSize : " << fileSize << " \nPackets required : " << numPackets << std::endl;
+    std::cout << "[+] Sending file : " << filename << " Size : " << fileSize << " Packets required : " << numPackets << std::endl;
     file.seekg(0, std::ios::beg);
 
     std::vector<Packet> packets;
