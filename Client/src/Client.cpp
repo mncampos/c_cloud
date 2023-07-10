@@ -115,29 +115,31 @@ void Client::getSyncDir()
     }
 
     std::cout << "[+] Sync complete." << std::endl;
-
 }
 
 void Client::requestSync()
 {
     std::cout << "[+] Sending request for synchronization." << std::endl;
-    if(!this->socket.sendMessage(this->socket.getSocketFd(), Packet(SYNC_PKT)))
+    if (!this->socket.sendMessage(this->socket.getSocketFd(), Packet(SYNC_PKT)))
         std::cout << "[-] Failed to send request." << std::endl;
 }
 
-
- std::string Client::getUsername()
- {
-    return this->username;
- }
-
- void Client::listenForSignal()
+std::string Client::getUsername()
 {
+    return this->username;
+}
 
-    Packet pkt = this->socket.receiveMessage(this->socket.getSocketFd());
-    if(pkt.type == SYNC_PKT)
+void Client::listenForSignal()
+{
+    std::vector<uint8_t> buf(MAX_PAYLOAD + 10);
+    ssize_t bytesRead = recv(this->socket.getSocketFd(), buf.data(), buf.size(), MSG_DONTWAIT);
+    if (errno == EWOULDBLOCK || errno == EAGAIN)
+        return;
+    std::vector<uint8_t> receivedData(buf.begin(), buf.begin() + bytesRead);
+    Packet pkt = Packet::deserialize(receivedData);
+
+    if (pkt.type == SYNC_PKT)
     {
-
         std::cout << "[+] Received sync signal." << std::endl;
         requestSync();
         sleep(1);

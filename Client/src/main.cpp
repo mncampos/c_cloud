@@ -127,26 +127,36 @@ int main(int argc, char *argv[])
 
         if (cmdName == "upload")
         {
+            shouldListen = false;
             client.uploadFile(fileName);
+            shouldListen = true;
         }
         else if (cmdName == "download")
         {
+            shouldListen = false;
             client.downloadFile(fileName);
+            shouldListen = true;
         }
         else if (cmdName == "delete")
         {
+            shouldListen = false;
             client.deleteFile(fileName);
+            shouldListen = true;
         }
         else if (cmdName == "list_server")
         {
+            shouldListen = false;
             client.listServerFiles();
+            shouldListen = true;
         }
         else if (cmdName == "list_client")
             client.listClientFiles();
         else if (cmdName == "get_sync_dir")
         {
+            shouldListen = false;
             client.requestSync();
             client.getSyncDir();
+            shouldListen = true;
         }
         else if (cmdName == "exit")
             break;
