@@ -29,6 +29,7 @@ void ClientHandler::handleClient()
                 Packet fileNamePkt = serverSocket->receiveMessage(clientSocket);
                 std::string filename = FileHandler::extractFilename(fileNamePkt.payload.get());
                 serverSocket->receiveFile(filename, clientSocket, this->clientUsername);
+                this->serverSocket->sendSignal(this->clientUsername, SYNC_PKT, this->clientSocket);
                 continue;
             }
             else if (payload == "list_server")
@@ -45,7 +46,7 @@ void ClientHandler::handleClient()
 
         if (pkt.type == SYNC_PKT)
         {
-            std::cout << "[+] Sync request received from " << clientUsername << std::endl; 
+            std::cout << "[+] Sync request received from " << clientUsername << std::endl;
             this->getSyncDir();
         }
 
@@ -75,23 +76,22 @@ void ClientHandler::handleClient()
                 {
                     if (!serverSocket->receiveFile(fileName, clientSocket, clientUsername))
                         std::cerr << "[-] Failed to sync." << std::endl;
+                        sleep(1);
+                    this->serverSocket->sendSignal(this->clientUsername, SYNC_PKT, this->clientSocket);
                 }
                 if (eventName == "delete")
                 {
                     std::cout << "[+] Deleting file " << fileName << std::endl;
                     FileHandler::deleteFile("sync_dir_" + clientUsername + "/" + fileName);
-
                 }
                 if (eventName == "update")
                 {
                     FileHandler::deleteFile("sync_dir_" + clientUsername + "/" + fileName);
                     serverSocket->receiveFile(fileName, clientSocket, clientUsername);
-
+                    sleep(1);
+                    this->serverSocket->sendSignal(this->clientUsername, SYNC_PKT, this->clientSocket);
                 }
             }
-
-            sleep(2);
-            this->serverSocket->sendSignal(this->clientUsername, SYNC_PKT, this->clientSocket);
         }
 
         else

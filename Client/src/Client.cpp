@@ -135,7 +135,7 @@ void Client::requestSync()
 {
 
     Packet pkt = this->socket.receiveMessage(this->socket.getSocketFd());
-    if(pkt.type = SYNC_PKT)
+    if(pkt.type == SYNC_PKT)
     {
 
         std::cout << "[+] Received sync signal." << std::endl;

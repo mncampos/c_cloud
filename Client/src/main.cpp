@@ -127,51 +127,26 @@ int main(int argc, char *argv[])
 
         if (cmdName == "upload")
         {
-            shouldListen = false; // Stop listening
             client.uploadFile(fileName);
-            shouldListen = true; // Start listening again
-            pthread_mutex_lock(&syncMutex);
-            pthread_cond_signal(&listenCond); // Signal the listen thread to start listening again
-            pthread_mutex_unlock(&syncMutex);
         }
         else if (cmdName == "download")
         {
-            shouldListen = false; // Stop listening
             client.downloadFile(fileName);
-            shouldListen = true; // Start listening again
-            pthread_mutex_lock(&syncMutex);
-            pthread_cond_signal(&listenCond); // Signal the listen thread to start listening again
-            pthread_mutex_unlock(&syncMutex);
         }
         else if (cmdName == "delete")
         {
-            shouldListen = false; // Stop listening
             client.deleteFile(fileName);
-            shouldListen = true; // Start listening again
-            pthread_mutex_lock(&syncMutex);
-            pthread_cond_signal(&listenCond); // Signal the listen thread to start listening again
-            pthread_mutex_unlock(&syncMutex);
         }
         else if (cmdName == "list_server")
         {
-            shouldListen = false;
             client.listServerFiles();
-            shouldListen = true;
-            pthread_mutex_lock(&syncMutex);
-            pthread_cond_signal(&listenCond);
-            pthread_mutex_unlock(&syncMutex);
         }
         else if (cmdName == "list_client")
             client.listClientFiles();
         else if (cmdName == "get_sync_dir")
         {
-            shouldListen = false;
             client.requestSync();
             client.getSyncDir();
-            shouldListen = true;
-            pthread_mutex_lock(&syncMutex);
-            pthread_cond_signal(&listenCond);
-            pthread_mutex_unlock(&syncMutex);
         }
         else if (cmdName == "exit")
             break;
