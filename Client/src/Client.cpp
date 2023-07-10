@@ -115,11 +115,14 @@ void Client::getSyncDir()
     }
 
     std::cout << "[+] Sync complete." << std::endl;
+
 }
 
 void Client::requestSync()
 {
-    this->socket.sendMessage(this->socket.getSocketFd(), Packet(SYNC_PKT));
+    std::cout << "[+] Sending request for synchronization." << std::endl;
+    if(!this->socket.sendMessage(this->socket.getSocketFd(), Packet(SYNC_PKT)))
+        std::cout << "[-] Failed to send request." << std::endl;
 }
 
 
@@ -130,9 +133,14 @@ void Client::requestSync()
 
  void Client::listenForSignal()
 {
+
     Packet pkt = this->socket.receiveMessage(this->socket.getSocketFd());
     if(pkt.type = SYNC_PKT)
     {
+
+        std::cout << "[+] Received sync signal." << std::endl;
+        requestSync();
+        sleep(1);
         getSyncDir();
     }
 }

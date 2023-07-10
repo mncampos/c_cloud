@@ -55,6 +55,7 @@ void ServerSocket::sendSignal(std::string username, int signalCode, int excluded
         const std::vector<int> &sockets = iterator->second;
         for (int socket : sockets)
         {
+
             if (socket != excludedSocket)
             {
                 sendMessage(socket, Packet(signalCode));

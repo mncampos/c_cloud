@@ -16,6 +16,7 @@
 #include "./ClientSocket.hpp"
 #include <algorithm>
 #include <numeric>
+#include <atomic>
 #include "../../Common/FileHandler.hpp"
 
 class Client
@@ -32,7 +33,6 @@ public:
     void requestSync();
     void listenForSignal();
     std::string getUsername();
-
 
 private:
     std::string username;

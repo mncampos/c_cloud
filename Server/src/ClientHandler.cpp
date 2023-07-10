@@ -45,6 +45,7 @@ void ClientHandler::handleClient()
 
         if (pkt.type == SYNC_PKT)
         {
+            std::cout << "[+] Sync request received from " << clientUsername << std::endl; 
             this->getSyncDir();
         }
 
@@ -68,28 +69,28 @@ void ClientHandler::handleClient()
             std::istringstream iss(pkt.payload.get());
             std::string eventName, fileName;
 
-            std::cout << "Received " << eventName << std::endl;
-
             if (std::getline(iss, eventName, ':') && std::getline(iss, fileName))
             {
                 if (eventName == "insert")
                 {
-                    if (serverSocket->receiveFile(fileName, clientSocket, clientUsername))
-                        continue;
+                    if (!serverSocket->receiveFile(fileName, clientSocket, clientUsername))
+                        std::cerr << "[-] Failed to sync." << std::endl;
                 }
                 if (eventName == "delete")
                 {
+                    std::cout << "[+] Deleting file " << fileName << std::endl;
                     FileHandler::deleteFile("sync_dir_" + clientUsername + "/" + fileName);
-                    continue;
+
                 }
                 if (eventName == "update")
                 {
                     FileHandler::deleteFile("sync_dir_" + clientUsername + "/" + fileName);
                     serverSocket->receiveFile(fileName, clientSocket, clientUsername);
-                    continue;
+
                 }
             }
 
+            sleep(2);
             this->serverSocket->sendSignal(this->clientUsername, SYNC_PKT, this->clientSocket);
         }
 

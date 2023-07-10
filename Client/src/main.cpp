@@ -4,7 +4,7 @@ pthread_mutex_t syncMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t syncCond = PTHREAD_COND_INITIALIZER;
 bool isSyncReady = false;
 pthread_cond_t listenCond = PTHREAD_COND_INITIALIZER;
-bool shouldListen = false;
+bool shouldListen = true;
 
 void *monitorSyncDir(void *arg)
 {
@@ -153,13 +153,25 @@ int main(int argc, char *argv[])
             pthread_mutex_unlock(&syncMutex);
         }
         else if (cmdName == "list_server")
+        {
+            shouldListen = false;
             client.listServerFiles();
+            shouldListen = true;
+            pthread_mutex_lock(&syncMutex);
+            pthread_cond_signal(&listenCond);
+            pthread_mutex_unlock(&syncMutex);
+        }
         else if (cmdName == "list_client")
             client.listClientFiles();
         else if (cmdName == "get_sync_dir")
         {
+            shouldListen = false;
             client.requestSync();
             client.getSyncDir();
+            shouldListen = true;
+            pthread_mutex_lock(&syncMutex);
+            pthread_cond_signal(&listenCond);
+            pthread_mutex_unlock(&syncMutex);
         }
         else if (cmdName == "exit")
             break;

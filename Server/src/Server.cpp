@@ -11,10 +11,12 @@ void *handleClient(void *arg)
     Packet receivedPacket = clientHandler->serverSocket->receiveMessage(clientHandler->getClientSocket());
     std::cout << "[+] User " << receivedPacket.payload.get() << " connected!" << std::endl;
     clientHandler->setClientUsername(receivedPacket.payload.get());
+    clientHandler->serverSocket->addClientSocket(receivedPacket.payload.get(), clientHandler->getClientSocket());
     clientHandler->getSyncDir();
 
     clientHandler->handleClient();
 
+    clientHandler->serverSocket->removeClientSocket(clientHandler->getClientSocket());
     close(clientHandler->getClientSocket());
     std::cout << "[+] User " << clientHandler->getClientUsername() << " successfully disconnected." << std::endl;
 
@@ -37,7 +39,7 @@ void Server::run()
         clientSocketFd = serverSocket.accept();
         if (clientSocketFd == -1)
             std::cout << "[+] Error accepting connections!" << std::endl;
-
+            
         ClientHandler *clientHandler = new ClientHandler(clientSocketFd, &this->serverSocket);
 
         // Se a conexão ocorreu com sucesso, spawna uma nova thread para o cliente
