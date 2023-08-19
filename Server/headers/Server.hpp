@@ -16,6 +16,7 @@ class Server
 public:
     Server();
     void run();
+    void runBackup(std::string mainServerIp);
     
 
 private:
