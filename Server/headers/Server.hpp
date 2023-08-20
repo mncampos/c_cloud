@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include "ClientHandler.hpp"
+#include "BackupHandler.hpp"
 #include "./ServerSocket.hpp"
 
 const int PORT = 4000;
@@ -20,6 +21,8 @@ public:
     Server();
     void run();
     void runBackup(std::string mainServerIp);
+    void *clientManager(void *arg);
+    void *replicaManager(void *arg);
 
 private:
     ServerSocket serverSocket;

@@ -2,6 +2,8 @@
 
 Server::Server() : serverSocket(PORT) {}
 
+Server::Server() : replicaSocket(REPLICA_PORT) {}
+
 // Subrotina para lidar com conexão do cliente
 void *handleClient(void *arg)
 {
@@ -29,7 +31,7 @@ void *handleReplica(void *arg)
     // @todo fazer o handler para a replica
 }
 
-void *replicaManager(void *arg)
+void *Server::replicaManager(void *arg)
 {
     // Wait for replica connections
     if (!replicaSocket.listen(REPLICA_CONNECTIONS_LIMIT))
@@ -60,7 +62,7 @@ void *replicaManager(void *arg)
     }
 }
 
-void *clientManager(void *arg)
+void *Server::clientManager(void *arg)
 {
     // Wait for client connections
     if (!serverSocket.listen(CONNECTIONS_LIMIT))
@@ -97,8 +99,8 @@ void Server::run()
     // Coloquei um codigo de exemplo mas ele nao funciona.
 
     // Se a conexão ocorreu com sucesso, spawna uma nova thread para o cliente
-    pthread_t clientThread;
-    if (pthread_create(&clientThread, nullptr, handleClient, reinterpret_cast<void *>(clientHandler)) != 0)
+    pthread_t clientManagerThread;
+    if (pthread_create(&clientManagerThread, nullptr, clientManager, reinterpret_cast<void *>(clientManager)) != 0)
     {
         std::cerr << "[-] Thread creation fail!" << std::endl;
         delete clientHandler;
@@ -107,8 +109,8 @@ void Server::run()
     pthread_detach(clientThread);
 
     // Se a conexão ocorreu com sucesso, spawna uma nova thread para A REPLICA
-    pthread_t clientThread;
-    if (pthread_create(&clientThread, nullptr, handleClient, reinterpret_cast<void *>(clientHandler)) != 0)
+    pthread_t replicaManagerThread;
+    if (pthread_create(&replicaManagerThread, nullptr, replicaManager, reinterpret_cast<void *>(replicaManager)) != 0)
     {
         std::cerr << "[-] Thread creation fail!" << std::endl;
         delete clientHandler;
