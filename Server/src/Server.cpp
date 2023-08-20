@@ -53,3 +53,20 @@ void Server::run()
         pthread_detach(clientThread);
     }
 }
+
+void Server::runBackup(std::string mainServerIp)
+{
+
+    std::string serverIp = mainServerIp;
+    int port = 4000;
+
+    if (!this->serverSocket.connectBackupToServer(mainServerIp, port))
+    {
+        std::cout << "[-] Error connecting to server!" << std::endl;
+        exit(-1);
+    }
+    else
+        std::cout << "[+] Connected to server succesfully!" << std::endl;
+
+
+}

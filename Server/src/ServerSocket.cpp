@@ -81,3 +81,20 @@ void ServerSocket::removeClientSocket(int socketFd)
         }
     }
 }
+
+bool ServerSocket::connectBackupToServer(std::string serverIp, int port)
+{
+    sockaddr_in serverAddress{};
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_port = htons(port);
+
+    if (inet_pton(AF_INET, serverIp.c_str(), &(serverAddress.sin_addr)) <= 0)
+    {
+        std::cerr << "[-] Failed to set server address!" << std::endl;
+        return false;
+    }
+
+    std::cout << "[#] Attempting to connect to server " << serverIp << ":" << port << "..." << std::endl;
+
+    return ::connect(socketFd, reinterpret_cast<sockaddr *>(&serverAddress), sizeof(serverAddress)) != -1;
+}
