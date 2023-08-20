@@ -21,12 +21,11 @@ public:
     Server();
     void run();
     void runBackup(std::string mainServerIp);
-    void *clientManager(void *arg);
-    void *replicaManager(void *arg);
 
-private:
     ServerSocket serverSocket;
     ServerSocket replicaSocket;
+private:
+
 };
 
 #endif
