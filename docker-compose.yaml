@@ -17,9 +17,9 @@ services:
     networks:
       my_network:
         ipv4_address: 192.168.100.10
-    ##command: bash -c "sleep 5 && /usr/bin/g++ -fdiagnostics-color=always -g $(pwd)/Client/src/*.cpp $(pwd)/Common/src/*.cpp -o $(pwd)/Client/main.o && $(pwd)/Client/main.o Client_1 192.168.100.2 4000"
+    ##command: bash -c "sleep 5 && /usr/bin/g++ -fdiagnostics-color=always -g $(pwd)/Client/src/*.cpp $(pwd)/Common/src/*.cpp -o $(pwd)/Client/main.o && $(pwd)/Client/main.o Client_1 192.168.100.2 4000" ## @todo apagar se nao for usar
     command: bash -c "tail -f /dev/null"
-    ## docker-compose exec cliente_1 bash
+    ## docker-compose exec cliente_1 bash ## @todo esse sao os comentarios que tem que executar na infraß
     ## /usr/bin/g++ -fdiagnostics-color=always -g $(pwd)/Client/src/*.cpp $(pwd)/Common/src/*.cpp -o $(pwd)/Client/main.o && $(pwd)/Client/main.o Client_1 192.168.100.2 4000
 
   cliente_2:
