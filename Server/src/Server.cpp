@@ -1,6 +1,6 @@
 #include "../headers/Server.hpp"
 
-Server::Server() : serverSocket(PORT) {}
+Server::Server() : serverSocket(PORT), replicaSocket(REPLICA_PORT) {}
 
 // Subrotina para lidar com conexão do cliente
 void *handleClient(void *arg)
@@ -83,7 +83,7 @@ void *clientManager(void *arg)
         // Blocked until a new connection is made
         clientSocketFd = server->serverSocket.accept();
         if (clientSocketFd == -1)
-            std::cout << "[+] Error accepting connections!" << std::endl;
+            std::cout << "[-] Error accepting connections!" << std::endl;
 
         ClientHandler *clientHandler = new ClientHandler(clientSocketFd, &server->serverSocket);
 
@@ -105,22 +105,25 @@ void Server::run()
     // Coloquei um codigo de exemplo mas ele nao funciona.
 
 
-
-    // Se a conexão ocorreu com sucesso, spawna uma nova thread para o cliente
     pthread_t clientManagerThread;
     if (pthread_create(&clientManagerThread, nullptr, clientManager, reinterpret_cast<void *>(this)) != 0)
     {
         std::cerr << "[-] Thread creation fail!" << std::endl;
     }
-    pthread_detach(clientManagerThread);
+
+    pthread_join(clientManagerThread, nullptr);
+
+    // Se a conexão ocorreu com sucesso, spawna uma nova thread para o cliente
+
 
     // Se a conexão ocorreu com sucesso, spawna uma nova thread para A REPLICA
-    pthread_t replicaManagerThread;
-    if (pthread_create(&replicaManagerThread, nullptr, replicaManager, reinterpret_cast<void *>(this)) != 0)
-    {
-        std::cerr << "[-] Thread creation fail!" << std::endl;
-    }
-    pthread_detach(replicaManagerThread);
+    // pthread_t replicaManagerThread;
+    // if (pthread_create(&replicaManagerThread, nullptr, replicaManager, reinterpret_cast<void *>(this)) != 0)
+    // {
+    //     std::cerr << "[-] Thread creation fail!" << std::endl;
+    // }
+    
+    // pthread_detach(replicaManagerThread);
 }
 
 void Server::runBackup(std::string mainServerIp)

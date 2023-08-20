@@ -7,11 +7,11 @@ int main(int argc, char *argv[])
 
    Server server;
 
-   if (argc == 1){
-      server.runBackup(argv[0]);
+   if (argc == 2){
+      server.runBackup(argv[1]);
+   } else {
+      server.run();
    }
-
-   server.run();
 
    return 0;
 
