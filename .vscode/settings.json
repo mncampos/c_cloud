@@ -3,6 +3,7 @@
         "*.mq4": "cpp",
         "*.mq5": "cpp",
         "*.mqh": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "numeric": "cpp"
     }
 }
