@@ -1,3 +1,4 @@
+#include <iostream>
 #include "../headers/Server.hpp"
 
 Server::Server() : serverSocket(PORT), replicaSocket(REPLICA_PORT) {}
@@ -28,7 +29,8 @@ void *handleReplica(void *arg)
 {
     // @todo fazer o handler para a replica
     BackupHandler *backupHandler = reinterpret_cast<BackupHandler *>(arg);
-    std::cout << "[+] New connection received!" << std::endl;
+    std::cout << "[+] New backup received!" << std::endl;
+    backupHandler->handleBackup();
 
     pthread_exit(nullptr);
 }
@@ -104,7 +106,6 @@ void Server::run()
     // uma porta para clientes novos e outra para servidores novos - replicaSocket e serverSocket
     // Coloquei um codigo de exemplo mas ele nao funciona.
 
-
     pthread_t clientManagerThread;
     if (pthread_create(&clientManagerThread, nullptr, clientManager, reinterpret_cast<void *>(this)) != 0)
     {
@@ -112,7 +113,6 @@ void Server::run()
     }
 
     // Se a conexão ocorreu com sucesso, spawna uma nova thread para o cliente
-
 
     // Se a conexão ocorreu com sucesso, spawna uma nova thread para A REPLICA
     pthread_t replicaManagerThread;
@@ -123,7 +123,6 @@ void Server::run()
 
     pthread_join(clientManagerThread, nullptr);
     pthread_join(replicaManagerThread, nullptr);
-    
 }
 
 void Server::runBackup(std::string mainServerIp)
