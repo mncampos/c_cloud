@@ -1,7 +1,7 @@
 #include <iostream>
 #include "../headers/Server.hpp"
 
-Server::Server() : serverSocket(PORT), replicaSocket(REPLICA_PORT) {}
+Server::Server() : serverSocket(PORT), backupSocket(BACKUP_PORT) {}
 
 // Subrotina para lidar com conexão do cliente
 void *handleClient(void *arg)
@@ -24,10 +24,10 @@ void *handleClient(void *arg)
     pthread_exit(nullptr);
 }
 
-// Subrotina para lidar com conexão de nova replica
-void *handleReplica(void *arg)
+// Subrotina para lidar com conexão de nova backup
+void *handleBackup(void *arg)
 {
-    // @todo fazer o handler para a replica
+    // @todo fazer o handler para a backup
     BackupHandler *backupHandler = reinterpret_cast<BackupHandler *>(arg);
     std::cout << "[+] New backup received!" << std::endl;
 
@@ -36,36 +36,36 @@ void *handleReplica(void *arg)
     pthread_exit(nullptr);
 }
 
-void *replicaManager(void *arg)
+void *backupManager(void *arg)
 {
     Server *server = reinterpret_cast<Server *>(arg);
 
-    // Wait for replica connections
-    if (!server->replicaSocket.listen(REPLICA_CONNECTIONS_LIMIT))
-        std::cout << "[-] Error listening to replica connections!" << std::endl;
+    // Wait for backup connections
+    if (!server->backupSocket.listen(BACKUP_CONNECTIONS_LIMIT))
+        std::cout << "[-] Error listening to backup connections!" << std::endl;
     else
-        std::cout << "[+] Listening for replica connections on port " << REPLICA_PORT << std::endl;
+        std::cout << "[+] Listening for backup connections on port " << BACKUP_PORT << std::endl;
 
-    int replicaSocketFd = 0; // Probably should be protected with a mutex or something
+    int backupSocketFd = 0; // Probably should be protected with a mutex or something
 
     while (true)
     {
         // Blocked until a new connection is made
-        replicaSocketFd = server->replicaSocket.accept();
-        if (replicaSocketFd != -1)
-            std::cerr << "[+] Error accepting replica connections!" << std::endl;
+        backupSocketFd = server->backupSocket.accept();
+        if (backupSocketFd != -1)
+            std::cerr << "[+] Error accepting backup connections!" << std::endl;
 
-        BackupHandler *backupHandler = new BackupHandler(replicaSocketFd, &server->replicaSocket);
+        BackupHandler *backupHandler = new BackupHandler(backupSocketFd, &server->backupSocket);
 
         // Se a conexão ocorreu com sucesso, spawna uma nova thread para o cliente
-        pthread_t replicaThread;
-        if (pthread_create(&replicaThread, nullptr, handleReplica, reinterpret_cast<void *>(backupHandler)) != 0)
+        pthread_t backupThread;
+        if (pthread_create(&backupThread, nullptr, handleBackup, reinterpret_cast<void *>(backupHandler)) != 0)
         {
             std::cerr << "[-] Thread creation fail!" << std::endl;
             delete backupHandler;
-            close(replicaSocketFd);
+            close(backupSocketFd);
         }
-        pthread_detach(replicaThread);
+        pthread_detach(backupThread);
     }
 }
 
@@ -112,15 +112,15 @@ void Server::run()
 
     // Se a conexão ocorreu com sucesso, spawna uma nova thread para o cliente
 
-    // Se a conexão ocorreu com sucesso, spawna uma nova thread para A REPLICA
-    pthread_t replicaManagerThread;
-    if (pthread_create(&replicaManagerThread, nullptr, replicaManager, reinterpret_cast<void *>(this)) != 0)
+    // Se a conexão ocorreu com sucesso, spawna uma nova thread para A BACKUP
+    pthread_t backupManagerThread;
+    if (pthread_create(&backupManagerThread, nullptr, backupManager, reinterpret_cast<void *>(this)) != 0)
     {
         std::cerr << "[-] Thread creation fail!" << std::endl;
     }
 
     pthread_join(clientManagerThread, nullptr);
-    pthread_join(replicaManagerThread, nullptr);
+    pthread_join(backupManagerThread, nullptr);
 }
 
 void Server::runBackup(std::string mainServerIp)
@@ -128,7 +128,7 @@ void Server::runBackup(std::string mainServerIp)
 
     std::string serverIp = mainServerIp;
 
-    if (!this->serverSocket.connectBackupToServer(mainServerIp, REPLICA_PORT))
+    if (!this->serverSocket.connectBackupToServer(mainServerIp, BACKUP_PORT))
     {
         std::cout << "[-] Error connecting to server!" << std::endl;
         exit(-1);

@@ -12,8 +12,8 @@
 const int PORT = 4000;
 const int CONNECTIONS_LIMIT = 3;
 
-const int REPLICA_PORT = 5000;
-const int REPLICA_CONNECTIONS_LIMIT = 2;
+const int BACKUP_PORT = 5000;
+const int BACKUP_CONNECTIONS_LIMIT = 2;
 
 class Server
 {
@@ -23,7 +23,7 @@ public:
     void runBackup(std::string mainServerIp);
 
     ServerSocket serverSocket;
-    ServerSocket replicaSocket;
+    ServerSocket backupSocket;
 private:
 
 };
