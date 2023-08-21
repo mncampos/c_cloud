@@ -30,6 +30,7 @@ void *handleReplica(void *arg)
     // @todo fazer o handler para a replica
     BackupHandler *backupHandler = reinterpret_cast<BackupHandler *>(arg);
     std::cout << "[+] New backup received!" << std::endl;
+
     backupHandler->handleBackup();
 
     pthread_exit(nullptr);
@@ -52,7 +53,7 @@ void *replicaManager(void *arg)
         // Blocked until a new connection is made
         replicaSocketFd = server->replicaSocket.accept();
         if (replicaSocketFd != -1)
-            std::cout << "[+] Error accepting replica connections!" << std::endl;
+            std::cerr << "[+] Error accepting replica connections!" << std::endl;
 
         BackupHandler *backupHandler = new BackupHandler(replicaSocketFd, &server->replicaSocket);
 
@@ -85,7 +86,7 @@ void *clientManager(void *arg)
         // Blocked until a new connection is made
         clientSocketFd = server->serverSocket.accept();
         if (clientSocketFd == -1)
-            std::cout << "[-] Error accepting connections!" << std::endl;
+            std::cerr << "[-] Error accepting connections!" << std::endl;
 
         ClientHandler *clientHandler = new ClientHandler(clientSocketFd, &server->serverSocket);
 
@@ -102,10 +103,7 @@ void *clientManager(void *arg)
 }
 
 void Server::run()
-{ //@todo - nessa parte precisamos separar como vamos inicializar as duas threads para gerenciar os dois eventos de listen que ocorrem simultaneamente
-    // uma porta para clientes novos e outra para servidores novos - replicaSocket e serverSocket
-    // Coloquei um codigo de exemplo mas ele nao funciona.
-
+{
     pthread_t clientManagerThread;
     if (pthread_create(&clientManagerThread, nullptr, clientManager, reinterpret_cast<void *>(this)) != 0)
     {
@@ -129,9 +127,8 @@ void Server::runBackup(std::string mainServerIp)
 {
 
     std::string serverIp = mainServerIp;
-    int port = 4000;
 
-    if (!this->serverSocket.connectBackupToServer(mainServerIp, port))
+    if (!this->serverSocket.connectBackupToServer(mainServerIp, REPLICA_PORT))
     {
         std::cout << "[-] Error connecting to server!" << std::endl;
         exit(-1);
