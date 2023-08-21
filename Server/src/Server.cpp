@@ -111,19 +111,19 @@ void Server::run()
         std::cerr << "[-] Thread creation fail!" << std::endl;
     }
 
-    pthread_join(clientManagerThread, nullptr);
-
     // Se a conexão ocorreu com sucesso, spawna uma nova thread para o cliente
 
 
     // Se a conexão ocorreu com sucesso, spawna uma nova thread para A REPLICA
-    // pthread_t replicaManagerThread;
-    // if (pthread_create(&replicaManagerThread, nullptr, replicaManager, reinterpret_cast<void *>(this)) != 0)
-    // {
-    //     std::cerr << "[-] Thread creation fail!" << std::endl;
-    // }
+    pthread_t replicaManagerThread;
+    if (pthread_create(&replicaManagerThread, nullptr, replicaManager, reinterpret_cast<void *>(this)) != 0)
+    {
+        std::cerr << "[-] Thread creation fail!" << std::endl;
+    }
+
+    pthread_join(clientManagerThread, nullptr);
+    pthread_join(replicaManagerThread, nullptr);
     
-    // pthread_detach(replicaManagerThread);
 }
 
 void Server::runBackup(std::string mainServerIp)
