@@ -135,4 +135,11 @@ void Server::runBackup(std::string mainServerIp)
     }
     else
         std::cout << "[+] Connected to server succesfully!" << std::endl;
+
+    
+}
+
+void Server::runElection()
+{
+    //@todo
 }

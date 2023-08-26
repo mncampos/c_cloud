@@ -8,7 +8,7 @@ services:
     networks:
       my_network:
         ipv4_address: 192.168.100.2
-    command: bash -c "/usr/bin/g++ -fdiagnostics-color=always -g $(pwd)/Server/src/*.cpp $(pwd)/Common/src/*.cpp -o $(pwd)/Server/main.o && $(pwd)/Server/main.o && tail -f /dev/null"
+    command: bash -c "/usr/bin/g++ -fdiagnostics-color=always -g ${PWD}/Server/src/*.cpp ${PWD}/Common/src/*.cpp -o ${PWD}/Server/main.o && ${PWD}/Server/main.o && tail -f /dev/null"
 
   servidor_2:
     image: linux-cpp
@@ -17,7 +17,7 @@ services:
     networks:
       my_network:
         ipv4_address: 192.168.100.3
-    command: bash -c "/usr/bin/g++ -fdiagnostics-color=always -g $(pwd)/Server/src/*.cpp $(pwd)/Common/src/*.cpp -o $(pwd)/Server/main.o && $(pwd)/Server/main.o 192.168.100.2 && tail -f /dev/null"
+    command: bash -c "/usr/bin/g++ -fdiagnostics-color=always -g ${PWD}/Server/src/*.cpp ${PWD}/Common/src/*.cpp -o ${PWD}/Server/main.o && ${PWD}/Server/main.o 192.168.100.2 && tail -f /dev/null"
   # cliente_1:
   #   image: linux-cpp
   #   volumes:
@@ -25,10 +25,10 @@ services:
   #   networks:
   #     my_network:
   #       ipv4_address: 192.168.100.10
-  #   ##command: bash -c "sleep 5 && /usr/bin/g++ -fdiagnostics-color=always -g $(pwd)/Client/src/*.cpp $(pwd)/Common/src/*.cpp -o $(pwd)/Client/main.o && $(pwd)/Client/main.o Client_1 192.168.100.2 4000" ## @todo apagar se nao for usar
+  #   ##command: bash -c "sleep 5 && /usr/bin/g++ -fdiagnostics-color=always -g ${PWD}/Client/src/*.cpp ${PWD}/Common/src/*.cpp -o ${PWD}/Client/main.o && ${PWD}/Client/main.o Client_1 192.168.100.2 4000" ## @todo apagar se nao for usar
   #   command: bash -c "tail -f /dev/null"
   #   ## docker-compose exec cliente_1 bash ## @todo esse sao os comentarios que tem que executar na infra
-  #   ## /usr/bin/g++ -fdiagnostics-color=always -g $(pwd)/Client/src/*.cpp $(pwd)/Common/src/*.cpp -o $(pwd)/Client/main.o && $(pwd)/Client/main.o Client_1 192.168.100.2 4000
+  #   ## /usr/bin/g++ -fdiagnostics-color=always -g ${PWD}/Client/src/*.cpp ${PWD}/Common/src/*.cpp -o ${PWD}/Client/main.o && ${PWD}/Client/main.o Client_1 192.168.100.2 4000
 
   # cliente_2:
   #   image: linux-cpp
@@ -37,10 +37,10 @@ services:
   #   networks:
   #     my_network:
   #       ipv4_address: 192.168.100.12
-  #   ##command: bash -c "sleep 5 && /usr/bin/g++ -fdiagnostics-color=always -g $(pwd)/Client/src/*.cpp $(pwd)/Common/src/*.cpp -o $(pwd)/Client/main.o && $(pwd)/Client/main.o Client_1 192.168.100.2 4000" ## @todo apagar se nao for usar
+  #   ##command: bash -c "sleep 5 && /usr/bin/g++ -fdiagnostics-color=always -g ${PWD}/Client/src/*.cpp ${PWD}/Common/src/*.cpp -o ${PWD}/Client/main.o && ${PWD}/Client/main.o Client_1 192.168.100.2 4000" ## @todo apagar se nao for usar
   #   command: bash -c "tail -f /dev/null"
   #   ## docker-compose exec cliente_2 bash ## @todo esse sao os comentarios que tem que executar na infra
-  #   ## /usr/bin/g++ -fdiagnostics-color=always -g $(pwd)/Client/src/*.cpp $(pwd)/Common/src/*.cpp -o $(pwd)/Client/main.o && $(pwd)/Client/main.o Client_2 192.168.100.2 4000
+  #   ## /usr/bin/g++ -fdiagnostics-color=always -g ${PWD}/Client/src/*.cpp ${PWD}/Common/src/*.cpp -o ${PWD}/Client/main.o && ${PWD}/Client/main.o Client_2 192.168.100.2 4000
 
   # cliente_3:
   #   image: linux-cpp
@@ -49,10 +49,10 @@ services:
   #   networks:
   #     my_network:
   #       ipv4_address: 192.168.100.13
-  #   ##command: bash -c "sleep 5 && /usr/bin/g++ -fdiagnostics-color=always -g $(pwd)/Client/src/*.cpp $(pwd)/Common/src/*.cpp -o $(pwd)/Client/main.o && $(pwd)/Client/main.o Client_1 192.168.100.2 4000" ## @todo apagar se nao for usar
+  #   ##command: bash -c "sleep 5 && /usr/bin/g++ -fdiagnostics-color=always -g ${PWD}/Client/src/*.cpp ${PWD}/Common/src/*.cpp -o ${PWD}/Client/main.o && ${PWD}/Client/main.o Client_1 192.168.100.2 4000" ## @todo apagar se nao for usar
   #   command: bash -c "tail -f /dev/null"
   #   ## docker-compose exec cliente_3 bash ## @todo esse sao os comentarios que tem que executar na infra
-  #   ## /usr/bin/g++ -fdiagnostics-color=always -g $(pwd)/Client/src/*.cpp $(pwd)/Common/src/*.cpp -o $(pwd)/Client/main.o && $(pwd)/Client/main.o Client_3 192.168.100.2 4000
+  #   ## /usr/bin/g++ -fdiagnostics-color=always -g ${PWD}/Client/src/*.cpp ${PWD}/Common/src/*.cpp -o ${PWD}/Client/main.o && ${PWD}/Client/main.o Client_3 192.168.100.2 4000
 
 networks:
   my_network:

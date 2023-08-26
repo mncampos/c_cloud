@@ -47,6 +47,11 @@ void ServerSocket::addClientSocket(std::string username, int socket)
     this->clientSockets[username].push_back(socket);
 }
 
+void ServerSocket::addBackupSocket(std::string ip, int socket)
+{
+    this->backupSockets[ip].push_back(socket);
+}
+
 void ServerSocket::sendSignal(std::string username, int signalCode, int excludedSocket)
 {
     auto iterator = clientSockets.find(username);

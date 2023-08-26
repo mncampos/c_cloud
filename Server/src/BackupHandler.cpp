@@ -11,6 +11,9 @@ void BackupHandler::handleBackup()
 
     while (true)
     {
+
+        
+
         // Packet pkt = serverSocket->receiveMessage(backupSocket);
         // Update backups
 
