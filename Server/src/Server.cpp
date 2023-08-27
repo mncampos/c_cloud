@@ -28,7 +28,7 @@ void *handleClient(void *arg)
 // Subrotina para lidar com conexão de nova backup
 void *handleBackup(void *arg)
 {
-    // @todo fazer o handler para a backup
+    // @TODO fazer o handler para a backup
     BackupHandler *backupHandler = reinterpret_cast<BackupHandler *>(arg);
     std::cout << "[+] New backup received!" << std::endl;
 
@@ -143,7 +143,7 @@ void Server::runBackup(std::string mainServerIp)
 
     pthread_t backupElectionSocket_thread;
 
-    // @todo : base - cria conexao
+    // @TODO: base - cria conexao
     //  backupElectionSocket
     //  cria Thread escutando conecção de backups
     //      pthread_join(thread, ip)
@@ -156,7 +156,7 @@ void Server::runBackup(std::string mainServerIp)
 
     pthread_t backupHeartBeat_thread;
 
-    // @todo : heartbeat
+    // @TODO: heartbeat
     //  backupHeartBeat
     //  cria Thread de heartbeat
     //      pthread_join(thread, result)
@@ -169,7 +169,7 @@ void Server::runBackup(std::string mainServerIp)
 
     pthread_t backupDataSync_thread;
 
-    // @todo : sincronização
+    // @TODO: sincronização
     //  backupDataSync
     //  cria Thread escutando mensagens do servidor principal
     //  lida com os dados recebidos do servidor principal
@@ -188,7 +188,7 @@ void Server::runBackup(std::string mainServerIp)
 
 void Server::runElection(std::string msgIp)
 {
-    //@todo : eleicao
+    //@TODO: eleicao
 
     // INICIO DE EXECUÇAO
     // if(msgIp != null) ->

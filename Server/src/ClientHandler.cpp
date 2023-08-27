@@ -92,7 +92,7 @@ void ClientHandler::handleClient()
                     this->serverSocket->sendSignal(this->clientUsername, SYNC_PKT, this->clientSocket);
                 }
                 // cria um jeito de mandar um sinal para chamar a funcao do backup handler que vai atualizar as replicas
-                // @todo :  atualizar replicas
+                // @TODO:  atualizar replicas
             }
 
             else
