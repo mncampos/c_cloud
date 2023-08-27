@@ -1,6 +1,6 @@
 #include "../headers/BackupHandler.hpp"
 
-BackupHandler::BackupHandler(int backupServerSocket, ServerSocket *serverSocket)
+BackupHandler::BackupHandler(int backupSocket, ServerSocket *serverSocket)
 {
     this->backupSocket = backupSocket;
     this->serverSocket = serverSocket;
@@ -9,8 +9,14 @@ BackupHandler::BackupHandler(int backupServerSocket, ServerSocket *serverSocket)
 void BackupHandler::handleBackup()
 {
 
-    while(true)
+    while (true)
     {
-        // Update backups 
+
+        // @todo : atualizar replicas
+        // fazer uma funcao q verifica se o sinal esta ativo e atualiza todas replicas
+        // o conteudo é tudo que esta no servidor principal
+
+        // @todo: heartbeat
+        // recebeu mensagem tipo heartbeat que backup envia para principal -> servidor principal  devolve mensagem do tipo heartbeat
     }
 }

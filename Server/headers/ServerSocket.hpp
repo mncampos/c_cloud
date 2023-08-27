@@ -12,11 +12,10 @@ class ServerSocket : public Socket {
     bool bind();
     bool listen(int backlog = 5);
     int accept();
-    int acceptBackups();
     bool connectBackupToServer(std::string serverIp, int port);
 
     void addClientSocket(std::string username, int socket);
-    void addBackupSocket(std::string username, int socket);
+    void addBackupSocket(std::string ip, int socket);
     void sendSignal(std::string username, int signalCode, int excludedSocket); // See packet.hpp for codes
     void removeClientSocket(int socket);
 

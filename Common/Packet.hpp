@@ -25,6 +25,8 @@ enum PacketType
     FILE_LIST,        // Contains a payload of filenames
     DELETE,           // Contains a request to delete a file
     SYNC_PKT,         // Requests a sync call from the server
+    ELECTION,         // Election message
+    HEARTBEAT,        // Heartbeat message
 };
 
 class Packet
