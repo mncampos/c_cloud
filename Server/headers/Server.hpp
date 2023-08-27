@@ -8,6 +8,7 @@
 #include "ClientHandler.hpp"
 #include "BackupHandler.hpp"
 #include "./ServerSocket.hpp"
+#include "../headers/RingHandler.hpp"
 
 const int PORT = 4000;
 const int CONNECTIONS_LIMIT = 3;
@@ -24,13 +25,14 @@ public:
     Server();
     void run();
     void runBackup(std::string mainServerIp);
-    void runElection(std::string msgIp);
+    void runElection(RingHandler *ringHandler);
 
     ServerSocket serverSocket;
     ServerSocket backupSocket;
     ServerSocket ringSocket;
 
 private:
+    
 };
 
 #endif

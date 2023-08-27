@@ -1,6 +1,7 @@
 #include <iostream>
 #include "../headers/Server.hpp"
-#include "../src/BackupThreads.cpp"
+#include "../headers/BackupThreads.hpp"
+#include "../headers/RingHandler.hpp"
 
 Server::Server() : serverSocket(PORT), backupSocket(BACKUP_PORT), ringSocket(RING_PORT) {}
 
@@ -126,8 +127,8 @@ void Server::run()
 
 void Server::runBackup(std::string mainServerIp)
 {
-    void *returnIp;
-    void *returnHeartbeat;
+    void *ringHandlerPtr = nullptr;
+    void *returnHeartbeat = nullptr;
 
     std::string serverIp = mainServerIp;
 
@@ -174,19 +175,38 @@ void Server::runBackup(std::string mainServerIp)
     //  cria Thread escutando mensagens do servidor principal
     //  lida com os dados recebidos do servidor principal
 
-    pthread_join(backupElectionSocket_thread, &returnIp);
-    pthread_join(backupHeartBeat_thread, &returnHeartbeat);
-    pthread_join(backupDataSync_thread, nullptr);
+
+    pthread_detach(backupDataSync_thread);
+    
+    while (true)
+    {
+        if(pthread_tryjoin_np(backupElectionSocket_thread, &ringHandlerPtr) == 0)
+        {
+            break;
+        }
+        if(pthread_tryjoin_np(backupHeartBeat_thread, &returnHeartbeat) == 0)
+        {
+            break;
+        }
+    }
+    
+    if(ringHandlerPtr != nullptr)
+    {
+        RingHandler *ringHandler = reinterpret_cast<RingHandler *>(ringHandlerPtr);
+        runElection(ringHandler);
+    }
+
+    if(returnHeartbeat != nullptr)
+    {
+        runElection(nullptr);
+    }
+
 
     // std::string electionIp = static_cast<std::string>(returnIp);
     // bool heartBeat = static_cast<std::string>(returnIp);
-
-    while (true)
-    {
-    }
 }
 
-void Server::runElection(std::string msgIp)
+void Server::runElection(RingHandler *ringHandler)
 {
     //@TODO: eleicao
 

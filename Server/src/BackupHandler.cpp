@@ -20,3 +20,8 @@ void BackupHandler::handleBackup()
         // recebeu mensagem tipo heartbeat que backup envia para principal -> servidor principal  devolve mensagem do tipo heartbeat
     }
 }
+
+int BackupHandler::getBackupSocket()
+{
+    return this->backupSocket;
+}

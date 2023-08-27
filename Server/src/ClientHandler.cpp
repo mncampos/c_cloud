@@ -101,6 +101,7 @@ void ClientHandler::handleClient()
 
         return;
     }
+}
 
     int ClientHandler::getClientSocket()
     {
