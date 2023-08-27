@@ -24,7 +24,7 @@ public:
     Server();
     void run();
     void runBackup(std::string mainServerIp);
-    void runElection();
+    void runElection(std::string msgIp);
 
     ServerSocket serverSocket;
     ServerSocket backupSocket;
