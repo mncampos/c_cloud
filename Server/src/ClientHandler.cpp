@@ -101,65 +101,66 @@ void ClientHandler::handleClient()
 
         return;
     }
+}
 
-    int ClientHandler::getClientSocket()
+int ClientHandler::getClientSocket()
+{
+    return this->clientSocket;
+}
+
+void ClientHandler::setClientUsername(std::string username)
+{
+    this->clientUsername = username;
+}
+
+std::string ClientHandler::getClientUsername()
+{
+    return this->clientUsername;
+}
+
+void ClientHandler::getSyncDir()
+{
+    std::string syncDir = "sync_dir_" + clientUsername;
+
+    if (!std::filesystem::exists(syncDir))
     {
-        return this->clientSocket;
-    }
-
-    void ClientHandler::setClientUsername(std::string username)
-    {
-        this->clientUsername = username;
-    }
-
-    std::string ClientHandler::getClientUsername()
-    {
-        return this->clientUsername;
-    }
-
-    void ClientHandler::getSyncDir()
-    {
-        std::string syncDir = "sync_dir_" + clientUsername;
-
-        if (!std::filesystem::exists(syncDir))
+        if (std::filesystem::create_directory(syncDir))
         {
-            if (std::filesystem::create_directory(syncDir))
-            {
-                std::cout << "[+] Sync dir created for " << clientUsername << " - " << syncDir << std::endl;
-            }
-            else
-            {
-                std::cout << "[-] Failed to create sync dir!" << std::endl;
-                return;
-            }
+            std::cout << "[+] Sync dir created for " << clientUsername << " - " << syncDir << std::endl;
         }
         else
         {
-            std::cout << "[#] " << syncDir << " found." << std::endl;
+            std::cout << "[-] Failed to create sync dir!" << std::endl;
+            return;
         }
-
-        std::cout << "[#] Attempting to sync directories..." << std::endl;
-        std::vector<std::string> filesInSyncDir = FileHandler::getFileList(syncDir);
-
-        for (std::string str : filesInSyncDir)
-        {
-            this->serverSocket->sendMessage(this->clientSocket, Packet(FILE_INFO_PKT, 1, 1, str.length() + 1, str.c_str()));
-            sleep(1);
-        }
-
-        this->serverSocket->sendMessage(this->clientSocket, Packet(FINAL_PKT));
-        std::cout << "[+] Sync successful." << std::endl;
-        return;
     }
-
-    void ClientHandler::listServer(std::string username)
+    else
     {
-        std::string filepath = "sync_dir_" + username;
-
-        std::vector<std::string> files = FileHandler::getDetailedFileList(filepath);
-        std::string newPayload = std::accumulate(files.begin(), files.end(), std::string(),
-                                                 [](const std::string &acc, const std::string &str)
-                                                 { return acc + str + "\n"; });
-        this->serverSocket->sendMessage(this->clientSocket, Packet(FILE_LIST, 1, 1, newPayload.length(), newPayload.c_str()));
-        return;
+        std::cout << "[#] " << syncDir << " found." << std::endl;
     }
+
+    std::cout << "[#] Attempting to sync directories..." << std::endl;
+    std::vector<std::string> filesInSyncDir = FileHandler::getFileList(syncDir);
+
+    for (std::string str : filesInSyncDir)
+    {
+        this->serverSocket->sendMessage(this->clientSocket, Packet(FILE_INFO_PKT, 1, 1, str.length() + 1, str.c_str()));
+        sleep(1);
+    }
+
+    this->serverSocket->sendMessage(this->clientSocket, Packet(FINAL_PKT));
+    std::cout << "[+] Sync successful." << std::endl;
+    return;
+}
+
+void ClientHandler::listServer(std::string username)
+{
+    std::string filepath = "sync_dir_" + username;
+
+    std::vector<std::string> files = FileHandler::getDetailedFileList(filepath);
+    std::string newPayload = std::accumulate(files.begin(), files.end(), std::string(),
+                                             [](const std::string &acc, const std::string &str)
+                                             { return acc + str + "\n"; });
+    this->serverSocket->sendMessage(this->clientSocket, Packet(FILE_LIST, 1, 1, newPayload.length(), newPayload.c_str()));
+    return;
+}
