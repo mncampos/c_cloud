@@ -1,7 +1,8 @@
 #include <iostream>
 #include "../headers/Server.hpp"
+#include "../src/BackupThreads.cpp"
 
-Server::Server() : serverSocket(PORT), backupSocket(BACKUP_PORT) {}
+Server::Server() : serverSocket(PORT), backupSocket(BACKUP_PORT), ringSocket(RING_PORT) {}
 
 // Subrotina para lidar com conexão do cliente
 void *handleClient(void *arg)
@@ -125,6 +126,8 @@ void Server::run()
 
 void Server::runBackup(std::string mainServerIp)
 {
+    void *returnIp;
+    void *returnHeartbeat;
 
     std::string serverIp = mainServerIp;
 
@@ -136,10 +139,76 @@ void Server::runBackup(std::string mainServerIp)
     else
         std::cout << "[+] Connected to server succesfully!" << std::endl;
 
-    
+    // while(true)
+
+    pthread_t backupElectionSocket_thread;
+
+    // @todo : base - cria conexao
+    //  backupElectionSocket
+    //  cria Thread escutando conecção de backups
+    //      pthread_join(thread, ip)
+    //      if(result == ip) -> runElection(ip)
+
+    if (pthread_create(&backupElectionSocket_thread, nullptr, backupElectionSocket, reinterpret_cast<void *>(this)) != 0)
+    {
+        std::cerr << "[-] Thread creation fail!" << std::endl;
+    }
+
+    pthread_t backupHeartBeat_thread;
+
+    // @todo : heartbeat
+    //  backupHeartBeat
+    //  cria Thread de heartbeat
+    //      pthread_join(thread, result)
+    //      if(result == deuMerda) -> runElection(null)
+
+    if (pthread_create(&backupHeartBeat_thread, nullptr, backupHeartBeat, reinterpret_cast<void *>(this)) != 0)
+    {
+        std::cerr << "[-] Thread creation fail!" << std::endl;
+    }
+
+    pthread_t backupDataSync_thread;
+
+    // @todo : sincronização
+    //  backupDataSync
+    //  cria Thread escutando mensagens do servidor principal
+    //  lida com os dados recebidos do servidor principal
+
+    pthread_join(backupElectionSocket_thread, &returnIp);
+    pthread_join(backupHeartBeat_thread, &returnHeartbeat);
+    pthread_join(backupDataSync_thread, nullptr);
+
+    // std::string electionIp = static_cast<std::string>(returnIp);
+    // bool heartBeat = static_cast<std::string>(returnIp);
+
+    while (true)
+    {
+    }
 }
 
-void Server::runElection()
+void Server::runElection(std::string msgIp)
 {
-    //@todo
+    //@todo : eleicao
+
+    // INICIO DE EXECUÇAO
+    // if(msgIp != null) ->
+    //      Envia melhor Ip para o proximo Backup em lista backupSockets
+    // if(msgIp == null) ->
+    //      Envia o proprio Ip para o proximo Backup em lista backupSockets
+
+    // RECEBIMENTO DE MENSAGENS
+    // ELECTION:
+    //      if(msgIp > this.ip) ->
+    //          Repassa Ip da mensagem
+    //      if(msgIp < this.ip) ->
+    //          Envia o proprio Ip
+    //      if(msgIp == this.ip) ->
+    //          Envia mensagem ELECTED(this.ip), passa a ser servidor principal (rodar Server.run)
+    //          Notifica front end socket 6666 que existe novo principal
+    // ELECTED(electedIp):
+    //      if(proximoNoAnel.ip == electedIp) ->
+    //          Volta a executar backup (Server.runBackup(electedIp))
+    //      if(proximoNoAnel.ip != electedIp) ->
+    //          Envia mensagem ELECTED(electedIp) para o proximo backup
+    //          Volta a executar backup (Server.runBackup(electedIp))
 }

@@ -15,6 +15,9 @@ const int CONNECTIONS_LIMIT = 3;
 const int BACKUP_PORT = 5000;
 const int BACKUP_CONNECTIONS_LIMIT = 2;
 
+const int RING_PORT = 6000;
+const int RING_CONNECTIONS_LIMIT = 2;
+
 class Server
 {
 public:
@@ -25,8 +28,9 @@ public:
 
     ServerSocket serverSocket;
     ServerSocket backupSocket;
-private:
+    ServerSocket ringSocket;
 
+private:
 };
 
 #endif

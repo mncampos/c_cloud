@@ -12,22 +12,11 @@ void BackupHandler::handleBackup()
     while (true)
     {
 
-        
+        // @todo : atualizar replicas
+        // fazer uma funcao q verifica se o sinal esta ativo e atualiza todas replicas
+        // o conteudo é tudo que esta no servidor principal
 
-        // Packet pkt = serverSocket->receiveMessage(backupSocket);
-        // Update backups
-
-        // switch (pkt.type)
-        // {
-        // case UPDATE:
-        //     break;
-        // case ELECTION:
-        //     // verifica se o id atual é maior do que o que recebeu ou igual
-        //     //  se for igual, é o novo eleito
-        //     //  se for maior, passa pra frente
-        //     break;
-        // default:
-        //     continue;
-        // }
+        // @todo: heartbeat
+        // recebeu mensagem tipo heartbeat que backup envia para principal -> servidor principal  devolve mensagem do tipo heartbeat
     }
 }
