@@ -1,6 +1,6 @@
 #include <iostream>
 #include "../headers/Server.hpp"
-#include "../src/BackupThreads.cpp"
+#include "../headers/BackupThreads.hpp"
 
 Server::Server() : serverSocket(PORT), backupSocket(BACKUP_PORT), ringSocket(RING_PORT) {}
 
@@ -53,7 +53,7 @@ void *backupManager(void *arg)
     {
         // Blocked until a new connection is made
         backupSocketFd = server->backupSocket.accept();
-        if (backupSocketFd != -1)
+        if (backupSocketFd == -1)
             std::cerr << "[+] Error accepting backup connections!" << std::endl;
 
         BackupHandler *backupHandler = new BackupHandler(backupSocketFd, &server->backupSocket);
@@ -111,9 +111,6 @@ void Server::run()
         std::cerr << "[-] Thread creation fail!" << std::endl;
     }
 
-    // Se a conexão ocorreu com sucesso, spawna uma nova thread para o cliente
-
-    // Se a conexão ocorreu com sucesso, spawna uma nova thread para A BACKUP
     pthread_t backupManagerThread;
     if (pthread_create(&backupManagerThread, nullptr, backupManager, reinterpret_cast<void *>(this)) != 0)
     {
