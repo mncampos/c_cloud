@@ -11,7 +11,7 @@
 
 class BackupHandler
 {
-public: 
+public:
     ServerSocket *serverSocket;
 
     BackupHandler(int backupServerSocket, ServerSocket *serverSocket);
@@ -19,8 +19,12 @@ public:
     void handleBackup();
     int getBackupSocket();
 
+    void setBackupIP(std::string IP);
+    std::string getBackupIP();
+
 private:
     int backupSocket;
+    std::string backupIP;
 };
 
 #endif
