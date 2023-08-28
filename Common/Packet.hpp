@@ -29,6 +29,7 @@ enum PacketType
     HEARTBEAT,        // Heartbeat message
     IP_PKT,           // Packet that sends a IP
     SYNC_BKP_PKT,     // request a sync call for the backups
+    BACKUP_MAP,       // send a unordered map of backups <backupIp, backupSocketFd>
 };
 
 class Packet

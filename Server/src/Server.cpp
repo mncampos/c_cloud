@@ -60,10 +60,10 @@ void *backupManager(void *arg)
 
         BackupHandler *backupHandler = new BackupHandler(backupSocketFd, &server->backupSocket);
 
-        Packet receivedPacket = backupHandler->serverSocket->receiveMessage(backupHandler->getBackupSocket());
-        std::cout << "[+] User " << receivedPacket.payload.get() << " connected!" << std::endl;
+        Packet receivedPacket = backupHandler->serverSocket->receiveMessage(backupSocketFd);
+        std::cout << "[+] Backup " << receivedPacket.payload.get() << " connected!" << std::endl;
         backupHandler->setBackupIP(receivedPacket.payload.get());
-        server->serverSocket.addBackupSocket(receivedPacket.payload.get(), backupHandler->getBackupSocket());
+        server->serverSocket.addBackupSocket(receivedPacket.payload.get(), backupSocketFd);
 
         // Se a conexão ocorreu com sucesso, spawna uma nova thread para o cliente
         pthread_t backupThread;
@@ -148,13 +148,13 @@ void Server::runBackup(std::string mainServerIp)
 
     // while(true)
 
-    pthread_t backupElectionSocket_thread;
+    // std::unordered_map<std::string, int> myMap = this->serverSocket->getBackupSockets(); //@TODO: APAGAR O COUT
+    // for (const auto &pair : myMap)
+    // {
+    //     std::cout << "Chave: " << pair.first << ", Valor: " << pair.second << std::endl;
+    // }
 
-    // @TODO: base - cria conexao
-    //  backupElectionSocket
-    //  cria Thread escutando conecção de backups
-    //      pthread_join(thread, ip)
-    //      if(result == ip) -> runElection(ip)
+    pthread_t backupElectionSocket_thread;
 
     if (pthread_create(&backupElectionSocket_thread, nullptr, backupElectionSocket, reinterpret_cast<void *>(this)) != 0)
     {
@@ -163,12 +163,6 @@ void Server::runBackup(std::string mainServerIp)
 
     pthread_t backupHeartBeat_thread;
 
-    // @TODO: heartbeat
-    //  backupHeartBeat
-    //  cria Thread de heartbeat
-    //      pthread_join(thread, result)
-    //      if(result == deuMerda) -> runElection(null)
-
     if (pthread_create(&backupHeartBeat_thread, nullptr, backupHeartBeat, reinterpret_cast<void *>(this)) != 0)
     {
         std::cerr << "[-] Thread creation fail!" << std::endl;
@@ -176,12 +170,14 @@ void Server::runBackup(std::string mainServerIp)
 
     pthread_t backupDataSync_thread;
 
-    // @TODO: sincronização
-    //  backupDataSync
-    //  cria Thread escutando mensagens do servidor principal
-    //  lida com os dados recebidos do servidor principal
-
     if (pthread_create(&backupDataSync_thread, nullptr, backupDataSync, reinterpret_cast<void *>(this)) != 0)
+    {
+        std::cerr << "[-] Thread creation fail!" << std::endl;
+    }
+
+    pthread_t backupMapReceive_thread;
+
+    if (pthread_create(&backupMapReceive_thread, nullptr, backupMapReceive, reinterpret_cast<void *>(this)) != 0)
     {
         std::cerr << "[-] Thread creation fail!" << std::endl;
     }
@@ -189,6 +185,7 @@ void Server::runBackup(std::string mainServerIp)
     pthread_join(backupElectionSocket_thread, &returnIp);
     pthread_join(backupHeartBeat_thread, &returnHeartbeat);
     pthread_join(backupDataSync_thread, nullptr);
+    pthread_join(backupMapReceive_thread, nullptr);
 
     // std::string electionIp = static_cast<std::string>(returnIp);
     // bool heartBeat = static_cast<std::string>(returnIp);

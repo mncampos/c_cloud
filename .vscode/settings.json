@@ -78,6 +78,7 @@
         "variant": "cpp",
         "__nullptr": "cpp",
         "__string": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "version": "cpp"
     }
 }

@@ -112,6 +112,45 @@ bool ServerSocket::sendIP(std::string ip, int socket)
     return sendMessage(socket, std::move(ipPkt));
 }
 
+std::string ServerSocket::unorderedMapToString(std::unordered_map<std::string, int> oldMap)
+{
+    std::string newString;
+
+    for (const auto &pair : oldMap)
+    {
+        newString += pair.first + ":" + std::to_string(pair.second) + " ";
+    }
+    return newString;
+}
+
+std::unordered_map<std::string, int> ServerSocket::stringToUnorderedMap(std::string oldString)
+{
+    std::unordered_map<std::string, int> resultMap;
+    std::istringstream iss(oldString);
+
+    std::string token;
+    while (iss >> token)
+    {
+        size_t pos = token.find(":");
+        if (pos != std::string::npos)
+        {
+            std::string key = token.substr(0, pos);
+            int value = std::stoi(token.substr(pos + 1));
+            resultMap[key] = value;
+        }
+    }
+
+    return resultMap;
+}
+
+bool ServerSocket::sendBackupMap(std::unordered_map<std::string, int> backupSockets, int socket)
+{
+    std::string backupSocketsString = unorderedMapToString(backupSockets);
+
+    Packet backupMapPkt = Packet(BACKUP_MAP, 1, 1, backupSocketsString.length() + 1, backupSocketsString.c_str());
+    return sendMessage(socket, std::move(backupMapPkt));
+}
+
 void ServerSocket::setIP(std::string IP)
 {
     this->ip = IP;
@@ -145,4 +184,9 @@ std::string ServerSocket::findIP()
 std::unordered_map<std::string, int> ServerSocket::getBackupSockets()
 {
     return this->backupSockets;
+}
+
+void ServerSocket::setBackupSocketMap(std::unordered_map<std::string, int> backupSockets)
+{
+    this->backupSockets = backupSockets;
 }

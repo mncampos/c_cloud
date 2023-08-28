@@ -21,7 +21,6 @@ public:
     bool connectBackupToServer(std::string serverIp, int port);
 
     void addClientSocket(std::string username, int socket);
-    void addBackupSocket(std::string ip, int socket);
     void sendSignal(std::string username, int signalCode, int excludedSocket); // See packet.hpp for codes
     void removeClientSocket(int socket);
 
@@ -30,7 +29,14 @@ public:
     std::string getIP();
     std::string findIP();
 
+    std::string unorderedMapToString(std::unordered_map<std::string, int> oldMap);
+    std::unordered_map<std::string, int> stringToUnorderedMap(std::string oldString);
+
+    void setBackupSocketMap(std::unordered_map<std::string, int>);
+    void addBackupSocket(std::string ip, int socket);
     std::unordered_map<std::string, int> getBackupSockets();
+    bool sendBackupMap(std::unordered_map<std::string, int> backupSockets, int socket);
+    bool sendBackupMapToAllBackups(std::unordered_map<std::string, int> backupSockets);
 
 private:
     int port;

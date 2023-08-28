@@ -10,6 +10,7 @@ void *backupElectionSocket(void *arg)
 void *backupHeartBeat(void *arg)
 {
     Server *server = reinterpret_cast<Server *>(arg);
+    int timeoutSecond = 10;
 
     while (true)
     {
@@ -20,7 +21,7 @@ void *backupHeartBeat(void *arg)
         FD_SET(server->serverSocket.getSocketFd(), &readSet);
 
         struct timeval timeout;
-        timeout.tv_sec = 5;
+        timeout.tv_sec = timeoutSecond;
         timeout.tv_usec = 0;
 
         int selectResult = select(server->serverSocket.getSocketFd() + 1, &readSet, NULL, NULL, &timeout);
@@ -31,7 +32,7 @@ void *backupHeartBeat(void *arg)
         }
         else if (selectResult == 0)
         {
-            std::cout << "[+] Timeout: No heartbeat response received within " << 5 << " seconds." << std::endl;
+            std::cout << "[+] Timeout: No heartbeat response received within " << timeoutSecond << " seconds." << std::endl;
             // @todo: election
             // runElection() here!
         }
@@ -44,14 +45,10 @@ void *backupHeartBeat(void *arg)
                 {
                     std::cout << "[+] Received heartbeat response." << std::endl;
                 }
-                else
-                {
-                    std::cerr << "[-] Unexpected packet received." << std::endl;
-                }
             }
         }
 
-        sleep(10);
+        sleep(5);
     }
 
     return nullptr;
@@ -60,4 +57,22 @@ void *backupHeartBeat(void *arg)
 void *backupDataSync(void *arg)
 {
     return nullptr;
+}
+
+void *backupMapReceive(void *arg)
+{
+    Server *server = reinterpret_cast<Server *>(arg);
+
+    while (true)
+    {
+        Packet pkt = server->serverSocket.receiveMessage(server->serverSocket.getSocketFd());
+
+        if (pkt.type == BACKUP_MAP)
+        {
+            std::cout << "[+] Receive a list of backup sockets" << std::endl;
+            server->serverSocket.setBackupSocketMap(server->serverSocket.stringToUnorderedMap(pkt.payload.get()));
+        }
+
+        sleep(5);
+    }
 }

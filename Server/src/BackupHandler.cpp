@@ -41,7 +41,7 @@ int BackupHandler::getBackupSocket()
 void BackupHandler::handleBackup()
 {
 
-    while (true)
+        while (true)
     {
 
         // @TODO: atualizar replicas
