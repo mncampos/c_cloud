@@ -1,4 +1,6 @@
 #include <iostream>
+#include <arpa/inet.h> // for inet_ntoa
+#include <string>
 #include "../headers/Server.hpp"
 #include "../headers/BackupThreads.hpp"
 
@@ -57,6 +59,11 @@ void *backupManager(void *arg)
             std::cerr << "[+] Error accepting backup connections!" << std::endl;
 
         BackupHandler *backupHandler = new BackupHandler(backupSocketFd, &server->backupSocket);
+
+        Packet receivedPacket = backupHandler->serverSocket->receiveMessage(backupHandler->getBackupSocket());
+        std::cout << "[+] User " << receivedPacket.payload.get() << " connected!" << std::endl;
+        backupHandler->setBackupIP(receivedPacket.payload.get());
+        server->serverSocket.addBackupSocket(receivedPacket.payload.get(), backupHandler->getBackupSocket());
 
         // Se a conexão ocorreu com sucesso, spawna uma nova thread para o cliente
         pthread_t backupThread;
@@ -126,6 +133,7 @@ void Server::runBackup(std::string mainServerIp)
     void *returnIp;
     void *returnHeartbeat;
 
+    this->serverSocket.setIP(this->serverSocket.findIP());
     std::string serverIp = mainServerIp;
 
     if (!this->serverSocket.connectBackupToServer(mainServerIp, BACKUP_PORT))
@@ -135,6 +143,8 @@ void Server::runBackup(std::string mainServerIp)
     }
     else
         std::cout << "[+] Connected to server succesfully!" << std::endl;
+
+    this->serverSocket.sendIP(this->serverSocket.getIP(), this->serverSocket.getSocketFd());
 
     // while(true)
 
@@ -170,6 +180,11 @@ void Server::runBackup(std::string mainServerIp)
     //  backupDataSync
     //  cria Thread escutando mensagens do servidor principal
     //  lida com os dados recebidos do servidor principal
+
+    if (pthread_create(&backupDataSync_thread, nullptr, backupDataSync, reinterpret_cast<void *>(this)) != 0)
+    {
+        std::cerr << "[-] Thread creation fail!" << std::endl;
+    }
 
     pthread_join(backupElectionSocket_thread, &returnIp);
     pthread_join(backupHeartBeat_thread, &returnHeartbeat);

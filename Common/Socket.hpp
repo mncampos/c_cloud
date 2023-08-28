@@ -1,6 +1,7 @@
 #ifndef SOCKET_HPP
 #define SOCKET_HPP
 
+#include <sys/socket.h>
 #include <iostream>
 #include <cstring>
 #include <arpa/inet.h>
@@ -9,6 +10,7 @@
 #include <fstream>
 #include <algorithm>
 #include <cmath>
+#include <netdb.h>
 #include "../Common/Packet.hpp"
 #include "./FileHandler.hpp"
 class Socket

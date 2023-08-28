@@ -26,11 +26,17 @@ public:
     void runBackup(std::string mainServerIp);
     void runElection(std::string msgIp);
 
+    std::string findIP();
+
+    void setIP(std::string IP);
+    std::string getIP();
+
     ServerSocket serverSocket;
     ServerSocket backupSocket;
     ServerSocket ringSocket;
 
 private:
+    std ::string IP;
 };
 
 #endif

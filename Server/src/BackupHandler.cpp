@@ -8,6 +8,21 @@ BackupHandler::BackupHandler(int backupSocket, ServerSocket *serverSocket)
     this->serverSocket = serverSocket;
 }
 
+void BackupHandler::setBackupIP(std::string IP)
+{
+    this->backupIP = IP;
+}
+
+std::string BackupHandler::getBackupIP()
+{
+    return this->backupIP;
+}
+
+int BackupHandler::getBackupSocket()
+{
+    return this->backupSocket;
+}
+
 // void *heartbeatCheck(void *arg) //@TODO: apagar se nao usar thread abaixo
 // {
 //     Server *server = reinterpret_cast<Server *>(arg);

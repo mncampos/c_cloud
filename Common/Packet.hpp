@@ -27,6 +27,8 @@ enum PacketType
     SYNC_PKT,         // Requests a sync call from the server
     ELECTION,         // Election message
     HEARTBEAT,        // Heartbeat message
+    IP_PKT,           // Packet that sends a IP
+    SYNC_BKP_PKT,     // request a sync call for the backups
 };
 
 class Packet
