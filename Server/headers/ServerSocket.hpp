@@ -5,9 +5,15 @@
 #include <fstream>
 #include <unordered_map>
 #include <algorithm>
+#include <iostream>
+#include <cstring>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <unistd.h>
 
-class ServerSocket : public Socket {
-    public:
+class ServerSocket : public Socket
+{
+public:
     ServerSocket(int port);
     bool bind();
     bool listen(int backlog = 5);
@@ -19,12 +25,18 @@ class ServerSocket : public Socket {
     void sendSignal(std::string username, int signalCode, int excludedSocket); // See packet.hpp for codes
     void removeClientSocket(int socket);
 
+    bool sendIP(std::string ip, int socket);
+    void setIP(std::string IP);
+    std::string getIP();
+    std::string findIP();
 
-    private:
+    std::unordered_map<std::string, int> getBackupSockets();
+
+private:
     int port;
+    std::string ip;
     std::unordered_map<std::string, std::vector<int>> clientSockets;
-    std::unordered_map<std::string, std::vector<int>> backupSockets;
-
+    std::unordered_map<std::string, int> backupSockets;
 };
 
 #endif

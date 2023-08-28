@@ -1,4 +1,6 @@
 #include "../headers/ServerSocket.hpp"
+#include <netdb.h>
+#include <arpa/inet.h>
 
 ServerSocket::ServerSocket(int port) : port(port)
 {
@@ -49,7 +51,7 @@ void ServerSocket::addClientSocket(std::string username, int socket)
 
 void ServerSocket::addBackupSocket(std::string ip, int socket)
 {
-    this->backupSockets[ip].push_back(socket);
+    this->backupSockets.insert(std::make_pair(ip, socket));
 }
 
 void ServerSocket::sendSignal(std::string username, int signalCode, int excludedSocket)
@@ -102,4 +104,45 @@ bool ServerSocket::connectBackupToServer(std::string serverIp, int port)
     std::cout << "[#] Attempting to connect to server " << serverIp << ":" << port << "..." << std::endl;
 
     return ::connect(socketFd, reinterpret_cast<sockaddr *>(&serverAddress), sizeof(serverAddress)) != -1;
+}
+
+bool ServerSocket::sendIP(std::string ip, int socket)
+{
+    Packet ipPkt = Packet(IP_PKT, 1, 1, ip.length() + 1, ip.c_str());
+    return sendMessage(socket, std::move(ipPkt));
+}
+
+void ServerSocket::setIP(std::string IP)
+{
+    this->ip = IP;
+}
+
+std::string ServerSocket::getIP()
+{
+    return this->ip;
+}
+
+std::string ServerSocket::findIP()
+{
+    char hostname[256];
+    if (gethostname(hostname, sizeof(hostname)) != 0)
+    {
+        std::cerr << "Erro ao obter o nome do host." << std::endl;
+        return "";
+    }
+
+    hostent *host = gethostbyname(hostname);
+    if (host == nullptr)
+    {
+        std::cerr << "Erro ao obter informações do host." << std::endl;
+        return "";
+    }
+
+    in_addr *address = reinterpret_cast<in_addr *>(host->h_addr);
+    return inet_ntoa(*address);
+}
+
+std::unordered_map<std::string, int> ServerSocket::getBackupSockets()
+{
+    return this->backupSockets;
 }
