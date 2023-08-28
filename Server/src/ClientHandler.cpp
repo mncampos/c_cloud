@@ -91,8 +91,13 @@ void ClientHandler::handleClient()
                     sleep(1);
                     this->serverSocket->sendSignal(this->clientUsername, SYNC_PKT, this->clientSocket);
                 }
+
+                // atualiza replicas
                 // cria um jeito de mandar um sinal para chamar a funcao do backup handler que vai atualizar as replicas
                 // @TODO:  atualizar replicas
+                // criar um broadcast para BackupSockets
+
+                // this->serverSocket.sendMessage(this->serverSocket.getSocketFd(), Packet(SYNC_BKP_PKT));
             }
 
             else
