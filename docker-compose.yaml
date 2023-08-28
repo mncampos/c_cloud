@@ -18,6 +18,15 @@ services:
       my_network:
         ipv4_address: 192.168.100.3
     command: bash -c "/usr/bin/g++ -fdiagnostics-color=always -g $(pwd)/Server/src/*.cpp $(pwd)/Common/src/*.cpp -o $(pwd)/Server/main.o && $(pwd)/Server/main.o 192.168.100.2 && tail -f /dev/null"
+
+  servidor_3:
+    image: linux-cpp
+    volumes:
+      - .:/work
+    networks:
+      my_network:
+        ipv4_address: 192.168.100.4
+    command: bash -c "/usr/bin/g++ -fdiagnostics-color=always -g $(pwd)/Server/src/*.cpp $(pwd)/Common/src/*.cpp -o $(pwd)/Server/main.o && $(pwd)/Server/main.o 192.168.100.2 && tail -f /dev/null"
     # cliente_1:
     #   image: linux-cpp
     #   volumes:
